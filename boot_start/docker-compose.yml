@@ -89,7 +89,7 @@ services:
       timeout: 20s
       retries: 10
   rotanava-boot-module-system:
-    image: registry.cn-hangzhou.aliyuncs.com/rotanova/rotanava-boot-module-system:1.0.12
+    image: registry.cn-hangzhou.aliyuncs.com/rotanova/rotanava-boot-module-system:1.0.13
     restart: always
     environment:
       - TZ=Asia/Shanghai
