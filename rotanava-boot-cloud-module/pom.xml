@@ -14,7 +14,8 @@
     <modules>
         <module>rotanava-boot-cloud-websocket</module>
         <module>rotanava-boot-cloud-websocket-api</module>
-
+        <module>rotanava-boot-cloud-xxljob-cron-parent</module>
+        <module>rotanava-boot-cloud-xxljob</module>
     </modules>
 
 

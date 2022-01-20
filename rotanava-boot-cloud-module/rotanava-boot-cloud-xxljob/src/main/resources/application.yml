@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: rotanava-boot-module-xxljob
+  profiles:
+    active: testprod
