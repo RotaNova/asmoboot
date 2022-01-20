@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rotanava.boot.system.module.dao.WechatSsoMapper">
+  <resultMap id="BaseResultMap" type="com.rotanava.boot.system.api.module.system.bo.WechatSso">
+    <!--@mbg.generated-->
+    <!--@Table wechat_sso-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="sys_user_id" jdbcType="INTEGER" property="sysUserId" />
+    <result column="wc_open_id" jdbcType="VARCHAR" property="wcOpenId" />
+    <result column="wc_uni_id" jdbcType="VARCHAR" property="wcUniId" />
+    <result column="wc_photo_url" jdbcType="VARCHAR" property="wcPhotoUrl" />
+    <result column="wc_name" jdbcType="VARCHAR" property="wcName" />
+    <result column="wc_phone" jdbcType="VARCHAR" property="wcPhone" />
+    <result column="wc_bind_time" jdbcType="TIMESTAMP" property="wcBindTime" />
+    <result column="wc_bind_status" jdbcType="INTEGER" property="wcBindStatus" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, sys_user_id, wc_open_id, wc_uni_id, wc_photo_url, wc_name, wc_phone, wc_bind_time, 
+    wc_bind_status
+  </sql>
+</mapper>

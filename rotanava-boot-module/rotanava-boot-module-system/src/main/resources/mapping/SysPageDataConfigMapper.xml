@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rotanava.boot.system.module.dao.SysPageDataConfigMapper">
+  <resultMap id="BaseResultMap" type="com.rotanava.boot.system.api.module.system.bo.SysPageDataConfig">
+    <!--@mbg.generated-->
+    <!--@Table sys_page_data_config-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="page_id" jdbcType="INTEGER" property="pageId" />
+    <result column="data_prefix" jdbcType="VARCHAR" property="dataPrefix" />
+    <result column="data_suffix" jdbcType="VARCHAR" property="dataSuffix" />
+    <result column="data_code" jdbcType="VARCHAR" property="dataCode" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, page_id, data_prefix, data_suffix, data_code, create_time
+  </sql>
+</mapper>

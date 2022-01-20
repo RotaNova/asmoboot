@@ -1,0 +1,125 @@
+minio:
+  accessKey: admin
+  endpoint: http://192.168.0.226:9000
+  secretKey: admin123456
+rotanava:
+  uploadType: minio
+  xxljob:
+    # �Ƿ���
+    enabled: true
+    #### xxl-job admin address list���������Ĳ������ַ����������ļ�Ⱥ������ڶ����ַ���ö��ŷָ���ִ��������ʹ�øõ�ַ����"ִ��������ע��"��"�������ص�"��
+    adminAddresses: http://127.0.0.1:9081/xxl-job-admin
+    ### xxl-job executor address��ִ����"AppName"�͵�ַ��Ϣ���ã�AppNameִ��������ע��������ݣ���ַ��Ϣ����"�����������󲢴�������"��"ִ����ע��"
+    #��ִ����Ĭ�϶˿�Ϊ9999��ִ����IPĬ��Ϊ�ձ�ʾ�Զ���ȡIP��������ʱ���ֶ�����ָ��IP����IP�����Host����ΪͨѶʵ�á�����������ִ����ʱ��ע��Ҫ���ò�ִͬ�����˿ڣ�
+    appname: ${spring.application.name}
+    ip: 127.0.0.1
+    port: 30007
+    ### xxl-job, access token��ִ����ͨѶTOKEN���ǿ�ʱ����
+    accessToken:
+#    ### xxl-job log path��ִ����������־�ļ��洢�Ĵ���λ�ã���Ҫ�Ը�·��ӵ�ж�дȨ��
+#    logPath: C:\IdeaProjects\rotanova-boot\xxl-test-job.log
+#    ### xxl-job log retention days��ִ����Log�ļ����������ܣ�ָ����־������������־�ļ������Զ�ɾ�����������ٱ���3�죬�����ܲ���Ч��
+#    logRetentionDays: 30
+server:
+  port: 8896
+spring:
+  application:
+    name: rotanava-boot-module-system
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    druid:
+      initial-size: 5
+      max-active: 20
+      max-wait: 60000
+      min-idle: 5
+      removeAbandoned: false
+      removeAbandonedTimeout: 1800
+      keep-alive: true
+      validation-query: select 1
+      test-on-borrow: true
+      test-on-return: true
+      test-while-idle: true
+    filters: stat,wall,log4j
+    password: RN2020.
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://192.168.0.226:3308/rn_base_sys?serverTimezone=GMT%2B8&useSSL=false&allowPublicKeyRetrieval=true&allowMultiQueries=true&useUnicode=true&characterEncoding=utf8
+#    url: jdbc:mysql:mysql://192.168.0.167:3308/rn_base_sys?useSSL=false&useUnicode=true&characterEncoding=utf-8&useLegacyDatetimeCode=false&serverTimezone=Asia/Shanghai
+    username: root
+  mail:
+    host: smtp.mxhichina.com
+    password: RotaNova@2020
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+    username: service@rotanovaiot.com
+  redis:
+    database: 5
+    host: 192.168.0.226
+    jedis:
+      pool:
+        max-active: 10
+        max-idle: 20
+        max-wait: 3000
+        min-idle: 2
+    password: DoDRXCvBXu
+    port: 6380
+    timeout: 7000
+  rabbitmq:
+    host: 192.168.0.226
+    #    host: 127.0.0.1
+    port: 15672
+    username: root
+    password: RN2020.
+    virtual-host: /
+    publisher-confirm-type: correlated
+#mybatis�����ļ�
+mybatis-plus:
+  mapper-locations: classpath*:mapping/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+swagger:
+  # ����swagger2
+  enable: true
+dubbo:
+  consumer:
+    check: false
+    retries: 0
+    validation: true
+  protocol:
+    name: dubbo
+    port: -1
+  provider:
+    retries: 0
+    timeout: 30000
+    #解决自定义异常丢失
+    filter: -exception
+  registry:
+    address: zookeeper://127.0.0.1:2181
+    check: false
+  application:
+    name: rotanava-boot-module-system
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8887/eureka/
+  instance:
+    prefer-ip-address: true
+opentracing:
+  #  https://github.com/opentracing-contrib/java-spring-jaeger
+  jaeger:
+    enabled: true
+    udp-sender:
+      host: 192.168.0.165
+      port: 6831
+    #    概率采样器 其中value是之间0.0（没有采样）和1.0（每个请求的采样）
+    probabilistic-sampler:
+      sampling-rate: 1.0
+    #   不打印到控制台
+    log-spans: false
+logging:
+  config: classpath:logback-dev.xml

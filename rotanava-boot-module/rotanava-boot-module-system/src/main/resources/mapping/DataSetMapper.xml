@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rotanava.boot.system.module.dao.DataSetMapper">
+  <resultMap id="BaseResultMap" type="com.rotanava.boot.system.api.module.system.bo.DataSet">
+    <!--@mbg.generated-->
+    <!--@Table data_set-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="data_set_name" jdbcType="VARCHAR" property="dataSetName" />
+    <result column="data_set_code" jdbcType="VARCHAR" property="dataSetCode" />
+    <result column="data_set_create_by" jdbcType="INTEGER" property="dataSetCreateBy" />
+    <result column="data_set_create_time" jdbcType="TIMESTAMP" property="dataSetCreateTime" />
+    <result column="data_set_update_by" jdbcType="INTEGER" property="dataSetUpdateBy" />
+    <result column="data_set_update_time" jdbcType="TIMESTAMP" property="dataSetUpdateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, data_set_name, data_set_code, data_set_create_by, data_set_create_time, data_set_update_by, 
+    data_set_update_time
+  </sql>
+</mapper>

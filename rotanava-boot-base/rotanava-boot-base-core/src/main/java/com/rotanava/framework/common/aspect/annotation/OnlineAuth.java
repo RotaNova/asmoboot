@@ -1,0 +1,21 @@
+package com.rotanava.framework.common.aspect.annotation;
+
+import java.lang.annotation.*;
+
+/**
+ * online请求拦截专用注解
+ *
+ * @Author richenLi
+ * @Date 2021年3月3日
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE,ElementType.METHOD})
+@Documented
+public @interface OnlineAuth {
+
+    /**
+     * 请求关键字，在xxx/code之前的字符串
+     * @return
+     */
+    String value();
+}

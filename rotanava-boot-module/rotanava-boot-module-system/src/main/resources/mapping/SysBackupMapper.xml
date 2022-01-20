@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rotanava.boot.system.module.dao.SysBackupMapper">
+    <resultMap id="BaseResultMap" type="com.rotanava.boot.system.api.module.system.bo.SysBackup">
+        <!--@mbg.generated-->
+        <!--@Table sys_backup-->
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="bak_name" jdbcType="VARCHAR" property="bakName"/>
+        <result column="bak_code" jdbcType="VARCHAR" property="bakCode"/>
+        <result column="bak_type" jdbcType="INTEGER" property="bakType"/>
+        <result column="bak_time" jdbcType="TIMESTAMP" property="bakTime"/>
+        <result column="create_by" jdbcType="INTEGER" property="createBy"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="file_size" jdbcType="VARCHAR" property="fileSize"/>
+        <result column="bucket_name" jdbcType="VARCHAR" property="bucketName"/>
+        <result column="object_name" jdbcType="VARCHAR" property="objectName"/>
+        <result column="service_type" jdbcType="INTEGER" property="serviceType"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        <!--@mbg.generated-->
+        id, bak_name, bak_code, bak_type, bak_time, create_by, create_time,
+        file_size,bucket_name,object_name,service_type
+    </sql>
+</mapper>

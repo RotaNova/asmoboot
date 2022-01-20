@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rotanava.boot.system.module.dao.SysRequestLogMapper">
+  <resultMap id="BaseResultMap" type="com.rotanava.boot.system.api.module.system.bo.SysRequestLog">
+    <!--@mbg.generated-->
+    <!--@Table sys_request_log-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="request_method" jdbcType="INTEGER" property="requestMethod" />
+    <result column="request_time" jdbcType="TIMESTAMP" property="requestTime" />
+    <result column="request_ip" jdbcType="VARCHAR" property="requestIp" />
+    <result column="request_url" jdbcType="VARCHAR" property="requestUrl" />
+    <result column="request_stat" jdbcType="INTEGER" property="requestStat" />
+    <result column="request_cost_time" jdbcType="INTEGER" property="requestCostTime" />
+    <result column="request_name" jdbcType="VARCHAR" property="requestName" />
+    <result column="request_param" jdbcType="LONGVARCHAR" property="requestParam" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, request_method, request_time, request_ip, request_url, request_stat, request_cost_time, 
+    request_name, request_param
+  </sql>
+</mapper>

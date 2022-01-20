@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: rotanava-boot-module-dbapi
+  profiles:
+    active: prod

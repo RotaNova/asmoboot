@@ -1,0 +1,123 @@
+minio:
+  accessKey: admin
+  endpoint: http://192.168.0.226:9000
+  secretKey: admin123456
+rotanava:
+  uploadType: minio
+  xxljob:
+    # 是否开启
+    enabled: false
+    ip: 127.0.0.1
+    port: 20011
+    #### xxl-job admin address list：调度中心部署跟地址：如调度中心集群部署存在多个地址则用逗号分隔。执行器将会使用该地址进行"执行器心跳注册"和"任务结果回调"。
+    adminAddresses: http://127.0.0.1:9081/xxl-job-admin
+    ### xxl-job executor address：执行器"AppName"和地址信息配置：AppName执行器心跳注册分组依据；地址信息用于"调度中心请求并触发任务"和"执行器注册"
+    #。执行器默认端口为9999，执行器IP默认为空表示自动获取IP，多网卡时可手动设置指定IP，该IP不会绑定Host仅作为通讯实用。单机部署多个执行器时，注意要配置不同执行器端口；
+    appname: ${spring.application.name}
+    ### xxl-job, access token：执行器通讯TOKEN，非空时启用
+    accessToken:
+#    ### xxl-job log path：执行器运行日志文件存储的磁盘位置，需要对该路径拥有读写权限
+#    logPath: C:\IdeaProjects\rotanova-boot\xxl-test-job.log
+#    ### xxl-job log retention days：执行器Log文件定期清理功能，指定日志保存天数，日志文件过期自动删除。限制至少保持3天，否则功能不生效；
+#    logRetentionDays: 30
+
+
+server:
+  port: 7052
+spring:
+  application:
+    name: rotanava-boot-module-dbapi
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    druid:
+      initial-size: 5
+      max-active: 20
+      max-wait: 60000
+      min-idle: 5
+      removeAbandoned: false
+      removeAbandonedTimeout: 1800
+      keep-alive: true
+      validation-query: select 1
+      test-on-borrow: true
+      test-on-return: true
+      test-while-idle: true
+    filters: stat,wall,log4j
+    password: RN2020.
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://192.168.0.226:3308/rn_base_sys?serverTimezone=GMT%2B8&useSSL=false&allowPublicKeyRetrieval=true&allowMultiQueries=true&useUnicode=true&characterEncoding=utf8
+    username: root
+  mail:
+    host: smtp.mxhichina.com
+    password: RotaNova@2020
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+    username: service@rotanovaiot.com
+  redis:
+    database: 4
+    host: 192.168.0.226
+    jedis:
+      pool:
+        max-active: 10
+        max-idle: 20
+        max-wait: 3000
+        min-idle: 2
+    password: DoDRXCvBXu
+    port: 6380
+    timeout: 7000
+  rabbitmq:
+    host: 192.168.0.226
+    port: 15672
+    username: root
+    password: RN2020.
+    virtual-host: /
+    publisher-confirm-type: correlated
+#mybatis配置文件
+mybatis-plus:
+  mapper-locations: classpath*:mapping/*.xml
+  configuration:
+    database-id: mysql
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+#    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+swagger:
+  # 开启swagger2
+  enable: true
+dubbo:
+  consumer:
+    check: false
+    retries: 0
+    validation: true
+  protocol:
+    name: dubbo
+    port: -1
+  provider:
+    retries: 0
+    timeout: 30000
+    #解决自定义异常丢失
+    filter: -exception
+  registry:
+    address: zookeeper://127.0.0.1:2181
+    check: false
+  application:
+    name: rotanava-boot-module-dbapi
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8887/eureka/
+opentracing:
+  #  https://github.com/opentracing-contrib/java-spring-jaeger
+  jaeger:
+    enabled: false
+    udp-sender:
+      host: 192.168.0.165
+      port: 6831
+    #    概率采样器 其中value是之间0.0（没有采样）和1.0（每个请求的采样）
+    probabilistic-sampler:
+      sampling-rate: 1.0
+    #   不打印到控制台
+    log-spans: false
+

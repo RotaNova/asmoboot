@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: rotanava-boot-module-system-websocket
+  redis:
+    database: 4
+    host: 192.168.0.226
+    password: DoDRXCvBXu
+    port: 6380
+    timeout: 7000
+  jedis:
+    pool:
+      max-active: 10
+      max-idle: 20
+      max-wait: 3000
+      min-idle: 2
+  rabbitmq:
+    host: 192.168.0.226
+    port: 15672
+    username: root
+    password: RN2020.
+    virtual-host: /
+    publisher-confirm-type: correlated
+rotanava:
+  socket:
+    port: 30502
+    scan: com.rotanava.*
+server:
+  port: 7032

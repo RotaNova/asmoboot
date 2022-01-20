@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rotanava.boot.system.module.dao.NetworkSettingMapper">
+  <resultMap id="BaseResultMap" type="com.rotanava.boot.system.api.module.system.bo.NetworkSetting">
+    <!--@mbg.generated-->
+    <!--@Table network_setting-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="ntk_service_name" jdbcType="VARCHAR" property="ntkServiceName" />
+    <result column="ntk_service_port" jdbcType="INTEGER" property="ntkServicePort" />
+    <result column="ntk_service_default_port" jdbcType="INTEGER" property="ntkServiceDefaultPort" />
+    <result column="update_by" jdbcType="INTEGER" property="updateBy" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, ntk_service_name, ntk_service_port, ntk_service_default_port, update_by, update_time
+  </sql>
+</mapper>

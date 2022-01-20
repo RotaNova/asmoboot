@@ -1,0 +1,104 @@
+minio:
+  accessKey: admin
+  endpoint: http://xh.rotanova.top:9000
+  secretKey: admin123456
+rotanava:
+  uploadType: minio
+  xxljob:
+    # 是否开启
+    enabled: true
+    #### xxl-job admin address list：调度中心部署跟地址：如调度中心集群部署存在多个地址则用逗号分隔。执行器将会使用该地址进行"执行器心跳注册"和"任务结果回调"。
+    adminAddresses: http://rotanava-boot-module-xxljob:9080/xxl-job-admin
+    ### xxl-job executor address：执行器"AppName"和地址信息配置：AppName执行器心跳注册分组依据；地址信息用于"调度中心请求并触发任务"和"执行器注册"
+    #。执行器默认端口为9999，执行器IP默认为空表示自动获取IP，多网卡时可手动设置指定IP，该IP不会绑定Host仅作为通讯实用。单机部署多个执行器时，注意要配置不同执行器端口；
+    appname: ${spring.application.name}
+    ip:
+    port: 30007
+    ### xxl-job, access token：执行器通讯TOKEN，非空时启用
+    accessToken:
+    ### xxl-job log path：执行器运行日志文件存储的磁盘位置，需要对该路径拥有读写权限
+    #    logPath: ./xxl-job.log
+    ### xxl-job log retention days：执行器Log文件定期清理功能，指定日志保存天数，日志文件过期自动删除。限制至少保持3天，否则功能不生效；
+    logRetentionDays: 30
+server:
+  port: 8899
+spring:
+  application:
+    name: rotanava-boot-module-system
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    druid:
+      initial-size: 5
+      max-active: 10
+      max-wait: 60000
+      min-idle: 5
+      removeAbandoned: false
+      removeAbandonedTimeout: 1800
+    filters: stat,wall,log4j
+    password: RN2020.
+    type: com.alibaba.druid.pool.DruidDataSource
+    url: jdbc:mysql://rotanavamysql:3306/rn_base_sys?serverTimezone=GMT%2B8&useSSL=false&allowPublicKeyRetrieval=true&allowMultiQueries=true&useUnicode=true&characterEncoding=utf8
+    username: root
+  mail:
+    host: smtp.mxhichina.com
+    password: RotaNova@2020
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+    username: service@rotanovaiot.com
+  redis:
+    database: 1
+    host: rotanavaredis
+    jedis:
+      pool:
+        max-active: 10
+        max-idle: 20
+        max-wait: 3000
+        min-idle: 2
+    port: 6379
+    timeout: 7000
+  rabbitmq:
+    host: rabbitmq
+    port: 5672
+    username: root
+    password: RN2020.
+    virtual-host: /
+    publisher-confirm-type: correlated
+#mybatis配置文件
+mybatis-plus:
+  mapper-locations: classpath*:mapping/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+swagger:
+  # 开启swagger2
+  enable: false
+dubbo:
+  consumer:
+    check: false
+    retries: 0
+    validation: true
+  protocol:
+    name: dubbo
+    port: -1
+  provider:
+    retries: 0
+    timeout: 30000
+    #解决自定义异常丢失
+    filter: -exception
+  registry:
+    address: zookeeper://zookeeper:2181
+    check: false
+  application:
+    name: rotanava-boot-module-system
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://eureka:8887/eureka/
+  instance:
+    prefer-ip-address: true
+logging:
+  config: classpath:logback.xml

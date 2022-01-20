@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rotanava.boot.system.module.dao.SysBehaviorLogMapper">
+  <resultMap id="BaseResultMap" type="com.rotanava.boot.system.api.module.system.bo.SysBehaviorLog">
+    <!--@mbg.generated-->
+    <!--@Table sys_behavior_log-->
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="syslog_behavior_type" jdbcType="INTEGER" property="syslogBehaviorType" />
+    <result column="syslog_type" jdbcType="INTEGER" property="syslogType" />
+    <result column="syslog_time" jdbcType="TIMESTAMP" property="syslogTime" />
+    <result column="syslog_content" jdbcType="VARCHAR" property="syslogContent" />
+    <result column="operate_by" jdbcType="VARCHAR" property="operateBy" />
+    <result column="operate_ip" jdbcType="VARCHAR" property="operateIp" />
+    <result column="operate_type" jdbcType="INTEGER" property="operateType" />
+    <result column="operate_cost_time" jdbcType="VARCHAR" property="operateCostTime" />
+    <result column="operate_create_time" jdbcType="TIMESTAMP" property="operateCreateTime" />
+    <result column="operate_method" jdbcType="VARCHAR" property="operateMethod" />
+    <result column="operate_url" jdbcType="VARCHAR" property="operateUrl" />
+    <result column="operate_param" jdbcType="LONGVARCHAR" property="operateParam" />
+    <result column="operate_request_type" jdbcType="INTEGER" property="operateRequestType" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    <!--@mbg.generated-->
+    id, syslog_behavior_type, syslog_type, syslog_time, syslog_content, operate_by, operate_ip, 
+    operate_type, operate_cost_time, operate_create_time, operate_method, operate_url, 
+    operate_param, operate_request_type
+  </sql>
+</mapper>

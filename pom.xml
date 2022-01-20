@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.rotanova.framework</groupId>
+    <artifactId>boot-base</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0.0</version>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.2.5.RELEASE</version>
+    </parent>
+
+    <properties>
+        <rotanava.boot.version>1.0.0</rotanava.boot.version>
+        <java.version>1.8</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
+        <spring-cloud-alibaba.version>2.2.3.RELEASE</spring-cloud-alibaba.version>
+        <xxl-job-core.version>2.2.0</xxl-job-core.version>
+        <fastjson.version>1.2.75</fastjson.version>
+        <knife4j-spring-boot-starter.version>2.0.4</knife4j-spring-boot-starter.version>
+        <knife4j-spring-ui.version>2.0.4</knife4j-spring-ui.version>
+        <postgresql.version>42.2.6</postgresql.version>
+        <ojdbc6.version>11.2.0.3</ojdbc6.version>
+        <sqljdbc4.version>4.0</sqljdbc4.version>
+        <mysql-connector-java.version>8.0.21</mysql-connector-java.version>
+        <mybatis-spring-boot-starter.version>1.3.4</mybatis-spring-boot-starter.version>
+        <dynamic-datasource-spring-boot-starter.version>3.2.0</dynamic-datasource-spring-boot-starter.version>
+        <hutool-all.version>5.3.10</hutool-all.version>
+        <redisson.version>3.13.6</redisson.version>
+        <commons-beanutils.version>1.9.4</commons-beanutils.version>
+        <guava.version>29.0-jre</guava.version>
+        <mybatis-plus.version>3.4.1</mybatis-plus.version>
+        <druid.version>1.1.22</druid.version>
+        <commons.version>2.6</commons.version>
+        <commons3.version>3.9</commons3.version>
+        <aliyun-java-sdk-dysmsapi.version>1.0.0</aliyun-java-sdk-dysmsapi.version>
+        <aliyun.oss.version>3.6.0</aliyun.oss.version>
+        <shiro.version>1.6.0</shiro.version>
+        <java-jwt.version>3.11.0</java-jwt.version>
+        <shiro-redis.version>3.1.0</shiro-redis.version>
+        <codegenerate.version>1.2.5</codegenerate.version>
+        <easyexcel.version>2.2.10</easyexcel.version>
+        <minio.version>4.0.0</minio.version>
+        <justauth-spring-boot-starter.version>1.3.2</justauth-spring-boot-starter.version>
+        <dom4j.version>1.6.1</dom4j.version>
+        <qiniu-java-sdk.version>7.2.23</qiniu-java-sdk.version>
+        <pinyin4j.version>2.5.1</pinyin4j.version>
+        <oss.version>1.0.1</oss.version>
+        <hibernate-validator.version>6.0.14.Final</hibernate-validator.version>
+        <hutool.version>5.5.9</hutool.version>
+        <dubbo.version>2.7.9</dubbo.version>
+        <curator.version>4.2.0</curator.version>
+        <curator.recipes.version>4.0.1</curator.recipes.version>
+        <aliyun-java-sdk-iot.version>7.24.0</aliyun-java-sdk-iot.version>
+        <aliyun-java-sdk-core.version>4.5.6</aliyun-java-sdk-core.version>
+        <qpid-jms-client.version>0.56.0</qpid-jms-client.version>
+        <redisson-spring-boot-starter.version>3.12.5</redisson-spring-boot-starter.version>
+        <influxdb-client-java.version>3.1.0</influxdb-client-java.version>
+        <dingtalk.version>1.1.90</dingtalk.version>
+        <ffmpeg.version>3.2.1-1.3</ffmpeg.version>
+        <javacv.version>1.4.1</javacv.version>
+    </properties>
+
+    <modules>
+        <module>rotanava-boot-base</module>
+        <module>rotanava-boot-cloud-module</module>
+        <module>rotanava-boot-module</module>
+    </modules>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.8</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- json -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${fastjson.version}</version>
+        </dependency>
+        <!-- http://repo1.maven.org/maven2/com/xuxueli/xxl-job-core/ -->
+        <!-- https://mvnrepository.com/artifact/com.xuxueli/xxl-job-core -->
+        <dependency>
+            <groupId>com.xuxueli</groupId>
+            <artifactId>rotanova-xxl-job-core</artifactId>
+            <version>${xxl-job-core.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-dependencies</artifactId>
+            <version>Hoxton.SR3</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+
+    </dependencies>
+
+    <dependencyManagement>
+
+        <dependencies>
+            <!-- https://mvnrepository.com/artifact/org.influxdb/influxdb-java -->
+            <!-- https://mvnrepository.com/artifact/com.influxdb/influxdb-client-java -->
+            <dependency>
+                <groupId>com.influxdb</groupId>
+                <artifactId>influxdb-client-java</artifactId>
+                <version>${influxdb-client-java.version}</version>
+            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.rotanava.face</groupId>-->
+<!--                <artifactId>comoon-websocket</artifactId>-->
+<!--                <version>1.0.7</version>-->
+<!--                <exclusions>-->
+<!--                    <exclusion>-->
+<!--                        <groupId>org.springframework.boot</groupId>-->
+<!--                        <artifactId>spring-boot-starter-data-mongodb</artifactId>-->
+<!--                    </exclusion>-->
+<!--                </exclusions>-->
+<!--            </dependency>-->
+            <dependency>
+                <groupId>com.rotanova.framework</groupId>
+                <artifactId>rotanava-boot-base-core-api</artifactId>
+                <version>${rotanava.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.rotanava.aliyun</groupId>
+                <artifactId>oss</artifactId>
+                <version>${oss.version}</version>
+            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.ejlchina</groupId>-->
+<!--                <artifactId>okhttps</artifactId>-->
+<!--                <version>1.0.2</version>-->
+<!--            </dependency>-->
+            <dependency>
+                <groupId>com.rotanova.framework</groupId>
+                <artifactId>rotanava-boot-cloud-websocket-api</artifactId>
+                <version>${rotanava.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.rotanova.framework</groupId>
+                <artifactId>rotanava-boot-base-common-code</artifactId>
+                <version>${rotanava.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+                <version>2.2.2.RELEASE</version>
+            </dependency>
+            <dependency>
+                <groupId>com.rotanova.framework</groupId>
+                <artifactId>rotanava-boot-base-core</artifactId>
+                <version>${rotanava.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.rotanova.framework</groupId>
+                <artifactId>rotanava-boot-base-dingding</artifactId>
+                <version>${rotanava.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.rotanova.framework</groupId>
+                <artifactId>rotanava-boot-module-system-api</artifactId>
+                <version>${rotanava.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.rotanova.framework</groupId>
+                <artifactId>rotanava-boot-module-basics-api</artifactId>
+                <version>${rotanava.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.rotanova.framework</groupId>
+                <artifactId>rotanava-boot-module-basedata-api</artifactId>
+                <version>${rotanava.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.rotanova.framework</groupId>
+                <artifactId>rotanava-boot-module-dbapi-api</artifactId>
+                <version>${rotanava.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool-all.version}</version>
+            </dependency>
+            <!-- RPC 相关 -->
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-spring-boot-starter</artifactId>
+                <version>${dubbo.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-framework</artifactId>
+                <version>4.2.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.curator</groupId>
+                <artifactId>curator-recipes</artifactId>
+                <version>4.0.1</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.jeasy/easy-rules-core -->
+            <dependency>
+                <groupId>org.jeasy</groupId>
+                <artifactId>easy-rules-core</artifactId>
+                <version>4.1.0</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/org.jeasy/easy-rules-core -->
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>dingtalk</artifactId>
+                <version>${dingtalk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>6.6</version>
+            </dependency>
+
+
+        </dependencies>
+
+
+
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.8</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

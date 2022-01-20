@@ -1,0 +1,2 @@
+rpcTraceProviderFilter=com.rotanava.framework.config.dubbo.RpcTraceProviderFilter
+rpcTraceConsumerFilter=com.rotanava.framework.config.dubbo.RpcTraceConsumerFilter

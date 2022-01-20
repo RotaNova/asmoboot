@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>rotanava-boot-module</artifactId>
+        <groupId>com.rotanova.framework</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>rotanava-boot-module-dbapi-parent</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>rotanava-boot-module-dbapi-api</module>
+        <module>rotanava-boot-module-dbapi</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-base-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-module-system-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-module-basics-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-module-basedata-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>nl.bitwalker</groupId>
+            <artifactId>UserAgentUtils</artifactId>
+            <version>1.2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-jexl3</artifactId>
+            <version>3.2</version>
+        </dependency>
+
+    </dependencies>
+</project>

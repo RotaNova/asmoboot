@@ -1,0 +1,5 @@
+spring:
+  application:
+    name: rotanava-boot-module-system-websocket
+  profiles:
+    active: testprod
