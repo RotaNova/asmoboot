@@ -6,7 +6,7 @@ FROM frolvlad/alpine-java:jdk8-slim
 
 
 VOLUME /tmp
-ADD rotanava-boot-module-dbapi-1.0.0.jar app.jar
+ADD ./targetrotanava-boot-module-dbapi-1.0.0.jar app.jar
 
 RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && echo 'Asia/Shanghai' >/etc/timezone
 
