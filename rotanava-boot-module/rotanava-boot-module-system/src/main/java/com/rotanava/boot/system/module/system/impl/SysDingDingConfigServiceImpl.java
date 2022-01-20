@@ -799,8 +799,8 @@ public class SysDingDingConfigServiceImpl implements SysDingDingConfigService {
         //去掉userid相同的数据
         return Lists.newArrayList(userInfoList.stream().collect(Collectors.toMap(OapiV2UserGetResponse.UserGetResponse::getUserid, Function.identity(), (oldData, newData) -> oldData)).values());
     }
-    
 
+    
     
     /**
      * 功能: 获取钉钉前缀的名称
