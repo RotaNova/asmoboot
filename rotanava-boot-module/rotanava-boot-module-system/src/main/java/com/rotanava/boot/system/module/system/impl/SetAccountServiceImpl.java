@@ -38,7 +38,7 @@ import com.rotanava.framework.model.BaseVO;
 import com.rotanava.framework.model.LoginUser;
 import com.rotanava.framework.util.BaseUtil;
 import com.rotanava.framework.util.BuildUtil;
-import com.rotanava.framework.util.MailUtil;
+import com.rotanava.boot.system.util.MailUtil;
 import com.rotanava.framework.util.PasswordUtil;
 import com.rotanava.framework.util.RedisUtil;
 import com.rotanava.boot.system.util.sms.SendMsgUtil;

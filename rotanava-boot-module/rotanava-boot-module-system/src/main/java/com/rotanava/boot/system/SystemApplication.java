@@ -1,7 +1,6 @@
 package com.rotanava.boot.system;
 
 import com.alibaba.fastjson.JSONObject;
-import lombok.extern.log4j.Log4j2;
 import org.apache.dubbo.config.spring.context.annotation.DubboComponentScan;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.mybatis.spring.annotation.MapperScan;
@@ -28,13 +27,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableDubbo(scanBasePackages = "com.rotanava.*")
 @DubboComponentScan(basePackages = {"com.rotanava.*"})
 @EnableAsync
-@Log4j2
 public class SystemApplication {
 
 
 
     public static void main(String[] args) {
-        log.info("SystemApplication args {}",JSONObject.toJSONString(args));
+        System.out.println("agrs=  "+ JSONObject.toJSONString(args));
 
         ConfigurableApplicationContext run = SpringApplication.run(SystemApplication.class, args);
     }

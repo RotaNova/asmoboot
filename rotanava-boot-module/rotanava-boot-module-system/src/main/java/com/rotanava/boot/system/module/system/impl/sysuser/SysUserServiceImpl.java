@@ -130,7 +130,7 @@ import com.rotanava.framework.util.BuildUtil;
 import com.rotanava.framework.util.ImageUtil;
 import com.rotanava.framework.util.JwtUtil;
 import com.rotanava.framework.util.MD5Tools;
-import com.rotanava.framework.util.MailUtil;
+import com.rotanava.boot.system.util.MailUtil;
 import com.rotanava.framework.util.PageUtils;
 import com.rotanava.framework.util.PasswordUtil;
 import com.rotanava.framework.util.RedisUtil;

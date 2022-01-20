@@ -34,7 +34,7 @@ import com.rotanava.framework.async.ThreadPoolUtil;
 import com.rotanava.framework.code.CommonException;
 import com.rotanava.framework.common.constant.enums.UserStatus;
 import com.rotanava.framework.exception.code.DBErrorCode;
-import com.rotanava.framework.util.MailUtil;
+import com.rotanava.boot.system.util.MailUtil;
 import com.rotanava.framework.util.socket.PcMessageUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboService;
@@ -43,8 +43,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.mail.MessagingException;
 import java.util.Collection;

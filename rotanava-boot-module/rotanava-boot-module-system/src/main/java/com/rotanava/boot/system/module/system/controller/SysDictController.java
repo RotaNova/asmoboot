@@ -196,6 +196,7 @@ public class SysDictController {
         LambdaQueryWrapper<SysDictItem> sysDictItemLambdaQueryWrapper = new LambdaQueryWrapper<>();
         sysDictItemLambdaQueryWrapper.eq(SysDictItem::getItemText,sysDictItem.getItemText());
         sysDictItemLambdaQueryWrapper.eq(SysDictItem::getItemValue,sysDictItem.getItemValue());
+        sysDictItemLambdaQueryWrapper.eq(SysDictItem::getDictId,sysDictItem.getDictId());
         int count = sysDictItemService.count(sysDictItemLambdaQueryWrapper);
         if(count > 0){
             throw new CommonException(ParamErrorCode.PARAM_ERROR_94);
@@ -239,7 +240,7 @@ public class SysDictController {
 
 
     @AdviceResponseBody
-    @GetMapping("/restoreDict")
+    @PostMapping("/restoreDict")
     @AutoLog("还原数据字典")
     public RetData restoreDict(@RequestBody List<Integer> list) {
         List<SysDict> sysDictList = sysDictService.listByIds(list);
