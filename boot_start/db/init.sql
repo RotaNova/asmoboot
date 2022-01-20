@@ -1,4 +1,3 @@
-
 -- 创建mysql库
 DROP DATABASE IF EXISTS `rn_base_sys`;
 create database `rn_base_sys` default character set utf8mb4 collate utf8mb4_general_ci;
@@ -677,9 +676,9 @@ CREATE TABLE `sys_basic_info`  (
 INSERT INTO `sys_basic_info` VALUES (1, 'system_name', 'system_name', '\r\n系统名称', '综合管理系统', '2021-03-11 10:20:50', '2021-03-11 10:20:50');
 INSERT INTO `sys_basic_info` VALUES (2, 'system_number', 'system_number', '系统编号', 'XH2022', '2021-03-11 10:21:59', '2021-03-11 10:22:01');
 INSERT INTO `sys_basic_info` VALUES (3, 'system_model', 'system_model', '系统型号', 'XH2022', '2021-03-11 10:22:43', '2021-03-11 10:22:46');
-INSERT INTO `sys_basic_info` VALUES (4, 'system_service_version', 'system_service_version', '系统服务版本', '1.0.6', '2021-03-11 10:23:58', '2021-03-11 10:24:00');
+INSERT INTO `sys_basic_info` VALUES (4, 'system_service_version', 'system_service_version', '系统服务版本', '1.0.13', '2021-03-11 10:23:58', '2021-03-11 10:24:00');
 INSERT INTO `sys_basic_info` VALUES (5, 'system_service_provider', 'system_service_provider', '系统服务商', '福建新航物联网科技有限公司', '2021-03-11 10:24:23', '2021-03-11 10:24:24');
-INSERT INTO `sys_basic_info` VALUES (6, 'production_date', 'production_date', '生产日期', '2022-01-18', '2021-03-11 10:25:55', '2021-03-11 10:25:58');
+INSERT INTO `sys_basic_info` VALUES (6, 'production_date', 'production_date', '生产日期', '2022-01-20', '2021-03-11 10:25:55', '2021-03-11 10:25:58');
 INSERT INTO `sys_basic_info` VALUES (7, 'origin', 'origin', '产地', '福建福州', '2021-03-11 10:26:31', '2021-03-11 10:26:34');
 INSERT INTO `sys_basic_info` VALUES (8, 'web_version', 'web_version', 'WEB版本', 'v1.0.85.3', '2021-03-11 10:27:11', '2021-03-11 10:27:14');
 
@@ -2530,10 +2529,10 @@ INSERT INTO `sys_page_permission` VALUES (266, 18, '修改用户', '/v1/myDepart
 INSERT INTO `sys_page_permission` VALUES (270, 9, 'API配置', '/advanconfig/apiConfig', 'apiConfig', 1, '452', 1, 1, 'API配置', 1, '2021-04-19 16:06:39', 1, '2021-04-19 16:06:39', 1, 1, NULL, 2, 1, 0, 0, NULL, NULL, NULL);
 INSERT INTO `sys_page_permission` VALUES (271, 270, '应用注册', '/advanconfig/appRegister', 'appRegister', 1, '542452', 1, 1, '应用注册', 1, '2021-04-19 16:07:12', 1, '2021-04-20 13:48:25', 1, 1, NULL, 1, 1, 0, 0, NULL, NULL, NULL);
 INSERT INTO `sys_page_permission` VALUES (272, 0, '高级配置', '/advanconfig', 'ldapConfig', 0, '/', 1, 0, '', 1, '2021-04-20 13:53:42', 1, '2021-10-27 16:09:41', 1, 1, NULL, 9, 1, 0, 0, 'iconhuaban13', '', 0);
-INSERT INTO `sys_page_permission` VALUES (273, 272, 'LDAP', '/advanconfig/ldapConfig', 'ldapConfig', 1, '91', 1, 1, '', 1, '2021-04-20 13:58:56', 1, '2021-04-20 13:58:56', 1, 1, NULL, 9, 1, 0, 0, NULL, NULL, NULL);
-INSERT INTO `sys_page_permission` VALUES (274, 12, '数据服务', '/advanconfig/dataService', 'dataService', 1, '921', 1, 1, '数据服务', 1, '2021-04-20 14:00:19', 1, '2021-05-12 15:42:06', 1, 1, NULL, 4, 1, 0, 0, NULL, NULL, NULL);
-INSERT INTO `sys_page_permission` VALUES (275, 274, '应用注册', '/advanconfig/dataService/appRegister', 'appRegister', 1, '932', 1, 1, '应用注册', 1, '2021-04-20 14:02:55', 1, '2021-04-20 14:59:53', 1, 1, NULL, 7, 1, 0, 0, NULL, NULL, NULL);
-INSERT INTO `sys_page_permission` VALUES (276, 274, 'API管理', '/advanconfig/dataService/apiConfig', 'apiConfig', 1, '94', 1, 1, 'API配置', 1, '2021-04-20 14:03:36', 1, '2021-04-20 17:05:32', 1, 1, NULL, 6, 1, 0, 0, NULL, NULL, NULL);
+INSERT INTO `sys_page_permission` VALUES (273, 272, 'LDAP', '/advanconfig/ldapConfig', 'ldapConfig', 1, '/advanconfig/ldapConfig', 1, 1, '', 1, '2021-04-20 13:58:56', 1, '2022-01-20 15:35:13', 1, 1, NULL, 9, 1, 0, 0, '', '', 0);
+INSERT INTO `sys_page_permission` VALUES (274, 12, '数据服务', '/advanconfig/dataService', 'dataService', 1, '/advanconfig/dataService', 1, 1, '数据服务', 1, '2021-04-20 14:00:19', 1, '2022-01-20 17:07:32', 1, 1, NULL, 5, 1, 0, 0, '', '', 0);
+INSERT INTO `sys_page_permission` VALUES (275, 274, '应用注册', '/advanconfig/dataService/appRegister', 'appRegister', 1, '/advanconfig/dataService/appRegister', 1, 1, '应用注册', 1, '2021-04-20 14:02:55', 1, '2022-01-20 17:06:34', 1, 1, NULL, 3, 1, 0, 0, '', '', 0);
+INSERT INTO `sys_page_permission` VALUES (276, 274, 'API管理', '/advanconfig/dataService/apiConfig', 'apiConfig', 1, '/advanconfig/dataService/apiConfig', 1, 1, 'API配置', 1, '2021-04-20 14:03:36', 1, '2022-01-20 17:06:41', 1, 1, NULL, 2, 1, 0, 0, '', '', 0);
 INSERT INTO `sys_page_permission` VALUES (283, 18, '保存系统角色系统权限配置 api级别', '/v1/myDepartment/saveDeptRolePermissionApi', NULL, 2, '/v1/myDepartment/saveDeptRolePermissionApi', 1, 1, '保存系统角色系统权限配置 api级别', 1, '2021-04-27 10:01:42', 1, '2021-04-27 10:01:42', 1, 1, 2, 1, 1, 0, 0, NULL, NULL, NULL);
 INSERT INTO `sys_page_permission` VALUES (288, 12, '后端API管理', '/resource/apiManage', 'apiManage', 1, 'HouDuanAPIGuanLi11', 1, 1, '后端API管理', 1, '2021-05-11 10:08:40', 1, '2021-05-11 10:08:40', 1, 1, NULL, 4, 1, 0, 0, NULL, NULL, NULL);
 INSERT INTO `sys_page_permission` VALUES (289, 17, '保存部门权限配置 api', '/v1/departmentManage/saveDeptPermissionApi', NULL, 2, '/v1/departmentManage/saveDeptPermissionApi', 1, 1, '保存部门权限配置 api', 1, '2021-05-11 10:22:23', 1, '2021-05-11 10:22:23', 1, 1, 0, 1, 1, 0, 0, NULL, NULL, NULL);
@@ -2579,7 +2578,7 @@ INSERT INTO `sys_page_permission` VALUES (348, 17, '获取部门导入模板链�
 INSERT INTO `sys_page_permission` VALUES (349, 16, '导出用户', '/v1/sysUserManage/batchExportSysUser', NULL, 2, '/v1/sysUserManage/batchExportSysUser', 1, 1, '导出用户', 1, '2021-05-31 10:47:19', 1, '2021-05-31 10:47:19', 1, 1, 3, 1, 1, 0, 0, NULL, NULL, NULL);
 INSERT INTO `sys_page_permission` VALUES (350, 16, '导入用户', '/v1/sysUserManage/batchImportSysUser', NULL, 2, '/v1/sysUserManage/batchImportSysUser', 1, 1, '导入用户', 1, '2021-05-31 10:47:19', 1, '2021-05-31 10:47:19', 1, 1, 0, 2, 1, 0, 0, NULL, NULL, NULL);
 INSERT INTO `sys_page_permission` VALUES (351, 16, '获取用户导入模板链接', '/v1/sysUserManage/getImportExcelFile', NULL, 2, '/v1/sysUserManage/getImportExcelFile', 1, 1, '获取用户导入模板链接', 1, '2021-05-31 10:47:19', 1, '2021-05-31 10:47:19', 1, 1, 3, 3, 1, 0, 0, NULL, NULL, NULL);
-INSERT INTO `sys_page_permission` VALUES (420, 12, '表格管理', '/resource/formsControl', 'formsControl', 1, 'BiaoGeGuanLi', 1, 1, '', 1, '2021-06-28 10:23:57', 1, '2021-07-05 09:38:50', 1, 1, NULL, 4, 1, 0, 0, NULL, NULL, NULL);
+INSERT INTO `sys_page_permission` VALUES (420, 12, '表格管理', '/resource/formsControl', 'formsControl', 1, 'BiaoGeGuanLi', 1, 1, '', 1, '2021-06-28 10:23:57', 1, '2022-01-20 17:07:41', 1, 1, NULL, 4, 1, 0, 0, '', '', 0);
 INSERT INTO `sys_page_permission` VALUES (430, 373, '获取项目概述列表', '/v1/projectManage/listProjectOverview', NULL, 2, '/v1/projectManage/listProjectOverview', 1, 1, '获取项目概述列表', 1, '2021-06-30 16:03:30', 1, '2021-06-30 16:03:30', 1, 1, 3, 2, 2, 0, 0, NULL, NULL, NULL);
 INSERT INTO `sys_page_permission` VALUES (431, 365, '添加项目关联设备分组', '/v1/project/addDeviceGroup', NULL, 2, '/v1/project/addDeviceGroup', 1, 1, '添加项目关联设备分组', 1, '2021-07-01 11:54:26', 1, '2021-07-01 11:54:26', 1, 1, 0, 1, 2, 0, 0, NULL, NULL, NULL);
 INSERT INTO `sys_page_permission` VALUES (432, 365, '添加项目', '/v1/project/addSysProject', NULL, 2, '/v1/project/addSysProject', 1, 1, '添加项目', 1, '2021-07-01 11:54:26', 1, '2021-07-01 11:54:26', 1, 1, 0, 2, 2, 0, 0, NULL, NULL, NULL);
@@ -2614,7 +2613,7 @@ INSERT INTO `sys_page_permission` VALUES (1002, 28, '批量导出Excel', '/v1/ma
 INSERT INTO `sys_page_permission` VALUES (1003, 28, '导出Excel', '/v1/managePermission/exportExcel', '/', 2, '/v1/managePermission/exportExcel', 1, 1, '导出Excel', 1, '2021-10-19 11:31:08', 1, '2021-11-24 15:27:31', 1, 1, 3, 2, 1, 0, 0, '', '', 0);
 INSERT INTO `sys_page_permission` VALUES (1004, 28, '获取模板', '/v1/managePermission/getMould', '/', 2, '/v1/managePermission/getMould', 1, 1, '获取模板', 1, '2021-10-19 11:31:08', 1, '2021-11-24 15:27:37', 1, 1, 3, 3, 1, 0, 0, '', '', 0);
 INSERT INTO `sys_page_permission` VALUES (1005, 28, '导入Excel', '/v1/managePermission/importExcel', '/', 2, '/v1/managePermission/importExcel', 1, 1, '导入Excel', 1, '2021-10-19 11:31:08', 1, '2021-11-24 15:27:41', 1, 1, 3, 4, 1, 0, 0, '', '', 0);
-INSERT INTO `sys_page_permission` VALUES (1135, 274, '数据源管理', '/advanconfig/dataService/databaseManger', 'databaseManger', 1, 'ShuJuYuanGuanLi', 1, 1, '', 1, '2021-11-11 14:50:38', 1, '2021-11-24 15:25:46', 1, 1, NULL, 7, 1, 0, 0, '', '', 0);
+INSERT INTO `sys_page_permission` VALUES (1135, 274, '数据源管理', '/advanconfig/dataService/databaseManger', 'databaseManger', 1, 'ShuJuYuanGuanLi', 1, 1, '', 1, '2021-11-11 14:50:38', 1, '2022-01-20 15:36:07', 1, 1, NULL, 1, 1, 0, 0, '', '', 0);
 INSERT INTO `sys_page_permission` VALUES (1136, 30, '导出Excel', '/v1/sysDict/exportExcel', NULL, 2, '/v1/sysDict/exportExcel', 1, 1, '导出Excel', 1, '2021-11-12 14:19:16', 1, '2021-11-12 14:19:16', 1, 1, 3, 1, 1, 0, 0, NULL, NULL, NULL);
 INSERT INTO `sys_page_permission` VALUES (1137, 30, '获取模板', '/v1/sysDict/getMould', NULL, 2, '/v1/sysDict/getMould', 1, 1, '获取模板', 1, '2021-11-12 14:19:16', 1, '2021-11-12 14:19:16', 1, 1, 3, 2, 1, 0, 0, NULL, NULL, NULL);
 INSERT INTO `sys_page_permission` VALUES (1138, 30, '导入Excel', '/v1/sysDict/importExcel', NULL, 2, '/v1/sysDict/importExcel', 1, 1, '导入Excel', 1, '2021-11-12 14:19:16', 1, '2021-11-12 14:19:16', 1, 1, 3, 3, 1, 0, 0, NULL, NULL, NULL);
@@ -3594,6 +3593,7 @@ CREATE TABLE `wechat_sso`  (
 
 SET FOREIGN_KEY_CHECKS = 1;
 
+
 -- 创建mysql库
 DROP DATABASE IF EXISTS `xxl_job`;
 create database `xxl_job` default character set utf8mb4 collate utf8mb4_general_ci;
@@ -3785,3 +3785,4 @@ CREATE TABLE `xxl_job_user`  (
 INSERT INTO `xxl_job_user` VALUES (1, 'admin', '21232f297a57a5a743894a0e4a801fc3', 1, NULL);
 
 SET FOREIGN_KEY_CHECKS = 1;
+
