@@ -165,7 +165,7 @@ services:
     networks:
       rotanova_bridge:
   nginx:
-    image: registry.cn-hangzhou.aliyuncs.com/rotanova/rotanova-nginx:v1.0.85.4
+    image: registry.cn-hangzhou.aliyuncs.com/rotanova/rotanova-nginx:v1.0.85.5
     restart: always
     ports:
       - "80:80"
