@@ -112,7 +112,7 @@ services:
     image: registry.cn-hangzhou.aliyuncs.com/rotanova/rotanava-boot-module-dbapi:1.0.2
     restart: always
     ports:
-      - "7052:7052"    
+      - "7052:7052"
     environment:
       - TZ=Asia/Shanghai
       - datasourcePwd=${DATASOURCE_PWD}
@@ -123,7 +123,7 @@ services:
       options:
         max-size: "100m"
     networks:
-      rotanova_bridge:      
+      rotanova_bridge:
   rotanava-boot-module-system-websocket:
     image: registry.cn-hangzhou.aliyuncs.com/rotanova/rotanava-boot-module-system-websocket:0.0.5
     restart: always
@@ -169,6 +169,17 @@ services:
     restart: always
     ports:
       - "80:80"
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+    networks:
+      rotanova_bridge:
+  amis-editor:
+    image: registry.cn-hangzhou.aliyuncs.com/rotanova/amis-editor:v1
+    restart: always
+    ports:
+      - "8082:8082"
     logging:
       driver: "json-file"
       options:
