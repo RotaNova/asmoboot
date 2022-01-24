@@ -109,7 +109,7 @@ services:
     networks:
       rotanova_bridge:
   rotanava-boot-module-dbapi:
-    image: registry.cn-hangzhou.aliyuncs.com/rotanova/rotanava-boot-module-dbapi:1.0.1
+    image: registry.cn-hangzhou.aliyuncs.com/rotanova/rotanava-boot-module-dbapi:1.0.2
     restart: always
     ports:
       - "7052:7052"    
