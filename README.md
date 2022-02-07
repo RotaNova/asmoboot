@@ -28,6 +28,10 @@ Web前端（Vue)：https://github.com/RotaNova/asmoboot-web
 
 Uni-app:  https://github.com/RotaNova/asmoboot-app
 
+交流群QQ: 189577357
+
+![](https://github-resources.oss-cn-hangzhou.aliyuncs.com/asmobootQQ.png)
+
 项目支持联系（游先生）：
 
 QQ: 365278161 
@@ -41,6 +45,51 @@ Email: qilinyou@rotanovaiot.com
 ## 平台配置
 
 ![platform](https://github-resources.oss-cn-hangzhou.aliyuncs.com/platform.png)
+
+```
+|-数据驾驶舱
+|-账户管理
+|--角色管理
+|--用户管理
+|--部门管理
+|--我的部门
+|-账号设置
+|-通告管理
+|--通知消息
+|--系统消息
+|--告警消息
+|-网络配置
+|-系统监控
+|-系统维护
+|--时间配置
+|--升级维护
+|--日志管理
+|-安全管理
+|-高级配置
+|--钉钉对接配置
+|--LDAP
+|-平台配置
+|--样式配置
+|--消息通知配置
+|--消息中心
+|--我的消息
+|--消息接收配置
+|-资源管理
+|--页面管理
+|--接口管理
+|--数据字典
+|--表格管理
+|--数据服务
+|---数据源管理
+|---API管理
+|---应用注册
+|-问题反馈
+|-反馈处理
+
+
+```
+
+
 
 ## 设备配置
 
@@ -65,6 +114,22 @@ Email: qilinyou@rotanovaiot.com
 ## 考勤管理系统
 
 ![checkIn](https://github-resources.oss-cn-hangzhou.aliyuncs.com/checkin.png)
+
+
+
+# 开放能力
+
+## AI能力支持
+
+现有算法清单
+
+![](https://github-resources.oss-cn-hangzhou.aliyuncs.com/aiList.png)
+
+![AIdemo](https://github-resources.oss-cn-hangzhou.aliyuncs.com/AI.jpeg)
+
+在我们平台中，可自由针对接入的摄像头、无人机监控等视频流数据配置AI扩展能力，快速交付业务。
+
+
 
 
 
