@@ -28,9 +28,7 @@ Web前端（Vue)：https://github.com/RotaNova/asmoboot-web
 
 Uni-app:  https://github.com/RotaNova/asmoboot-app
 
-交流群QQ: 189577357
-
-###### <img src="https://github-resources.oss-cn-hangzhou.aliyuncs.com/asmobootQQ.png" alt="QQs" style="zoom:25%;" />
+交流群QQ: [189577357](https://github-resources.oss-cn-hangzhou.aliyuncs.com/asmobootQQ.JPG)
 
 项目支持联系（游先生）：
 
