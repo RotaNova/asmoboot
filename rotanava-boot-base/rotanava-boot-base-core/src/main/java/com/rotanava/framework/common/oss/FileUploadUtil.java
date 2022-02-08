@@ -5,15 +5,14 @@ import com.ejlchina.okhttps.HTTP;
 import com.rotanava.aliyun.oss.cfg.EndpointType;
 import com.rotanava.aliyun.oss.model.OssResultBean;
 import com.rotanava.aliyun.oss.util.OssClientUtil;
-
+import com.rotanava.framework.code.CommonException;
 import com.rotanava.framework.common.constant.CommonConstant;
 import com.rotanava.framework.common.oss.model.MinioResultBean;
 import com.rotanava.framework.common.oss.model.UploadResultBean;
+import com.rotanava.framework.exception.code.SysErrorCode;
 import com.rotanava.framework.util.BaseUtil;
 import com.rotanava.framework.util.ImageUtil;
 import com.rotanava.framework.util.StringUtil;
-import com.rotanava.framework.code.CommonException;
-import com.rotanava.framework.exception.code.SysErrorCode;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -32,6 +31,12 @@ public class FileUploadUtil {
     private String uploadType;
     @Autowired
     private MinioUtil minioUtil;
+
+    @Value("${rotanava.ossAccessKey:ossAccessKey}")
+    public String ossAccessKey;
+
+    @Value("${rotanava.ossAccessKeySecret:ossAccessKeySecret}")
+    public String ossAccessKeySecret;
 
     private ConcurrentHashMap<String, OssClientUtil> ossClientPool = new ConcurrentHashMap<>();
 
@@ -59,7 +64,7 @@ public class FileUploadUtil {
         if (clientUtil == null) {
             synchronized (this) {
                 if (clientUtil == null) {
-                    clientUtil = new OssClientUtil(EndpointType.HANG_ZHOU, bucketName);
+                    clientUtil = new OssClientUtil(EndpointType.HANG_ZHOU, bucketName,ossAccessKey,ossAccessKeySecret);
                 }
             }
         }
@@ -84,7 +89,7 @@ public class FileUploadUtil {
      * @param inputStream
      * @return
      */
-    public UploadResultBean uploadFile(String bucketName,String objectName, InputStream inputStream, String suffix) {
+    public UploadResultBean uploadFile(String bucketName, String objectName, InputStream inputStream, String suffix) {
 
 
         switch (uploadType) {
@@ -108,7 +113,7 @@ public class FileUploadUtil {
      * @param inputStream
      * @return
      */
-    public UploadResultBean uploadFile(String bucketName,String objectName, InputStream inputStream) {
+    public UploadResultBean uploadFile(String bucketName, String objectName, InputStream inputStream) {
 
        return uploadFile(bucketName,objectName,inputStream,"");
     }
