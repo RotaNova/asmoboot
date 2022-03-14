@@ -79,6 +79,7 @@ public class MailUtil {
         mailSender.send(message);
     }
 
+
     public static int random() {
         Random r = new Random();
         StringBuffer sb = new StringBuffer();
