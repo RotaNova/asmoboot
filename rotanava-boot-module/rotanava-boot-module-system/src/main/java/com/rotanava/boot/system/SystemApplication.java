@@ -32,7 +32,6 @@ public class SystemApplication {
 
 
     public static void main(String[] args) {
-        System.out.println("agrs=  "+ JSONObject.toJSONString(args));
 
         ConfigurableApplicationContext run = SpringApplication.run(SystemApplication.class, args);
     }

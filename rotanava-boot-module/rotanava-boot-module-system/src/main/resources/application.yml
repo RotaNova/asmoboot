@@ -2,4 +2,4 @@ spring:
   application:
     name: rotanava-boot-module-system
   profiles:
-    active: dev
+    active: test
