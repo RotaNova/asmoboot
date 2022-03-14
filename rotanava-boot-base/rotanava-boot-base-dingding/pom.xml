@@ -36,6 +36,7 @@
             <groupId>com.rotanava.boot</groupId>
             <artifactId>dingtalk-java-sdk</artifactId>
             <version>1.3</version>
+            <systemPath>${project.basedir}/src/main/lib/dingtalk-java-sdk-1.3.jar</systemPath>
         </dependency>
     </dependencies>
 
