@@ -25,15 +25,6 @@
             <groupId>com.rotanova.framework</groupId>
             <artifactId>rotanava-boot-module-system-api</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.rotanova.framework</groupId>
-            <artifactId>rotanava-boot-module-basics-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.rotanova.framework</groupId>
-            <artifactId>rotanava-boot-module-basedata-api</artifactId>
-            <version>1.0.0</version>
-        </dependency>
 
         <dependency>
             <groupId>nl.bitwalker</groupId>

@@ -177,16 +177,7 @@
                 <artifactId>rotanava-boot-module-system-api</artifactId>
                 <version>${rotanava.boot.version}</version>
             </dependency>
-            <dependency>
-                <groupId>com.rotanova.framework</groupId>
-                <artifactId>rotanava-boot-module-basics-api</artifactId>
-                <version>${rotanava.boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.rotanova.framework</groupId>
-                <artifactId>rotanava-boot-module-basedata-api</artifactId>
-                <version>${rotanava.boot.version}</version>
-            </dependency>
+
             <dependency>
                 <groupId>com.rotanova.framework</groupId>
                 <artifactId>rotanava-boot-module-dbapi-api</artifactId>
