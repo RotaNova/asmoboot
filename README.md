@@ -260,8 +260,20 @@ docker-compose up -d
 
 ![image-20220114162347183](http://rn-test-face-static-test-resource.oss-cn-hangzhou.aliyuncs.com/9CA0D08D-B07B-4ae4-A58A-0A7C7B627C92.png)
 
+
+
+Maven包缺失问题
+----
+
+该项目存在部分私有仓库包，请将工程maven目录下的package.zip文件解压至maven本地仓库后重新导入
+
+
+
+
+
 附属文档
 ====
+
 - [平台使用手册](https://rotanova.yuque.com/books/share/1f659d3d-1316-4c68-93bf-3498f1b89e8a)
 
 
