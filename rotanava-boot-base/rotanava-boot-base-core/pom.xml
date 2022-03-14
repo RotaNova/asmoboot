@@ -105,6 +105,12 @@
             <version>${commons3.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.rotanava.aliyun</groupId>
+            <artifactId>oss</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+
         <!-- 拼音库 -->
         <dependency>
             <groupId>com.belerweb</groupId>

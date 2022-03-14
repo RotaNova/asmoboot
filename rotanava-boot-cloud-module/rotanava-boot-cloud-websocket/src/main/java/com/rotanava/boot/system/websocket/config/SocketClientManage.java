@@ -1,9 +1,9 @@
 package com.rotanava.boot.system.websocket.config;
 
 import com.rotanava.boot.system.websocket.bean.UserClientBean;
-import com.rotanava.face.core.util.StringUtil;
 import com.rotanava.face.core.websocket.iface.SocketClient;
 import com.rotanava.face.core.websocket.server.ClientManage;
+import io.netty.util.internal.StringUtil;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,7 +38,7 @@ public class SocketClientManage {
 
     public static SocketClient get(String token) {
         UserClientBean userClientBean = map.get(token);
-        if (!StringUtil.isNullOrEmpty(userClientBean)) {
+        if (userClientBean!=null) {
             return ClientManage.getClient(userClientBean.getSession());
         }
         return null;

@@ -3,12 +3,11 @@ package com.rotanava.boot.system.websocket.service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.google.common.collect.Sets;
 import com.rotanava.boot.system.websocket.api.model.NoticeBean;
 import com.rotanava.boot.system.websocket.bean.UserClientBean;
 import com.rotanava.boot.system.websocket.config.SocketClientManage;
 
-import com.rotanava.face.core.global.ThreadPoolUtil;
+import com.rotanava.boot.system.websocket.thread.ThreadPoolUtil;
 import com.rotanava.face.core.websocket.iface.SocketClient;
 
 import lombok.extern.log4j.Log4j2;

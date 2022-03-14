@@ -141,8 +141,6 @@
                 <groupId>com.rotanava.aliyun</groupId>
                 <artifactId>oss</artifactId>
                 <version>${oss.version}</version>
-                <scope>system</scope>
-                <systemPath>${project.basedir}/lib/oss-1.0.3.jar</systemPath>
             </dependency>
 <!--            <dependency>-->
 <!--                <groupId>com.ejlchina</groupId>-->

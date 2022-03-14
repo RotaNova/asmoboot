@@ -16,6 +16,12 @@
 <!--            <groupId>com.rotanova.framework</groupId>-->
 <!--            <artifactId>rotanava-boot-base-core</artifactId>-->
 <!--        </dependency>-->
+        <!--反射框架-->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.9.10</version>
+        </dependency>
         <!--JWT-->
         <dependency>
             <groupId>com.auth0</groupId>
@@ -60,8 +66,8 @@
             <groupId>com.rotanava.face</groupId>
             <artifactId>comoon-websocket</artifactId>
             <version>1.0.7</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/lib/comoon-websocket-1.0.7.jar</systemPath>
+<!--            <scope>system</scope>-->
+<!--            <systemPath>${project.basedir}/src/main/resources/lib/comoon-websocket-1.0.7.jar</systemPath>-->
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
