@@ -60,6 +60,7 @@
             <groupId>com.rotanava.face</groupId>
             <artifactId>comoon-websocket</artifactId>
             <version>1.0.7</version>
+            <systemPath>${project.basedir}/src/main/resources/lib/comoon-websocket-1.0.7.jar</systemPath>
             <exclusions>
                 <exclusion>
                     <groupId>org.springframework.boot</groupId>
