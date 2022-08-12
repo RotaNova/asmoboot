@@ -1,6 +1,8 @@
-######                                                     <img src="https://github-resources.oss-cn-hangzhou.aliyuncs.com/logo.png" alt="logo" style="zoom:50%;" />							
+<div align='center'>
+<img src="https://github-resources.oss-cn-hangzhou.aliyuncs.com/logo.png" alt="logo" style="zoom:50%;" />							
+</div>
 
-#					 ASMO BOOT v1.0
+# ASMO BOOT v1.0
 
 
 ​						 基于SpringBoot开发的快速开发框架[[AsmoBoot官网](https://www.asmoboot.com)]
@@ -43,49 +45,6 @@ Email: qilinyou@rotanovaiot.com
 ## 平台配置
 
 ![platform](https://github-resources.oss-cn-hangzhou.aliyuncs.com/platform.png)
-
-功能清单
-
-| -数据驾驶舱    |
-| :------------- |
-| -账户管理      |
-| --角色管理     |
-| --用户管理     |
-| --部门管理     |
-| --我的部门     |
-| -账号设置      |
-| -通告管理      |
-| --通知消息     |
-| --系统消息     |
-| --告警消息     |
-| -网络配置      |
-| -系统监控      |
-| -系统维护      |
-| --时间配置     |
-| --升级维护     |
-| --日志管理     |
-| -安全管理      |
-| -高级配置      |
-| --钉钉对接配置 |
-| --LDAP         |
-| -平台配置      |
-| --样式配置     |
-| --消息通知配置 |
-| --消息中心     |
-| --我的消息     |
-| --消息接收配置 |
-| -资源管理      |
-| --页面管理     |
-| --接口管理     |
-| --数据字典     |
-| --表格管理     |
-| --数据服务     |
-| ---数据源管理  |
-| ---API管理     |
-| ---应用注册    |
-| -问题反馈      |
-| -反馈处理      |
-
 
 
 ## 设备配置
