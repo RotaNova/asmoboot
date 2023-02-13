@@ -7,7 +7,7 @@
 
 ​						 基于SpringBoot开发的快速开发框架[[AsmoBoot官网](https://www.asmoboot.com)]
 
-​							                     [中文文档](http://help.rotanova.top) | 英文文档
+​							                     [中文文档](http://help.rotanovaiot.cn) | 英文文档
 
 [![AUR](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)](https://github.com/RotaNova/rotanova-boot/blob/master/LICENSE)
 
