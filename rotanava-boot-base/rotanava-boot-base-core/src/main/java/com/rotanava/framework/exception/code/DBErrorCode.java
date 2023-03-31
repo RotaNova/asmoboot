@@ -26,6 +26,7 @@ public interface DBErrorCode {
     ErrorCode DB_ERROR_14 = new ErrorCode(100114, "数据库连接异常，请检查是否正确");
     ErrorCode DB_ERROR_15 = new ErrorCode(100115, "sql执行异常，请联系接口提供者");
     ErrorCode DB_ERROR_16 = new ErrorCode(100116, "sql配置异常，请检查");
+    ErrorCode DB_ERROR_17 = new ErrorCode(100117, "任务暂未完成，无法删除");
 
 
 }

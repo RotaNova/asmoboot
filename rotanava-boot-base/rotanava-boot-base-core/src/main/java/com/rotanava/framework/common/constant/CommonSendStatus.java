@@ -1,7 +1,7 @@
 package com.rotanava.framework.common.constant;
 
 /**
- * 	系统通告 - 发布状态
+ * 	系统通告 -
  * @Author LeeShaoQing
  *
  */

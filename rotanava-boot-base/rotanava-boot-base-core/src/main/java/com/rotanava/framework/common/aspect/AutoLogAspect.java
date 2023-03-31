@@ -97,7 +97,7 @@ public class AutoLogAspect {
         //请求的参数
         dto.setOperateParam(getReqestParams(request,joinPoint));
         //设置IP地址
-        dto.setOperateIp(request.getHeader("ip"));
+        dto.setOperateIp(IPUtils.getIpAddr(request));
         //设置请求路径
         dto.setOperateUrl(request.getRequestURI());
         //设置请求类型

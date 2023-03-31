@@ -115,6 +115,14 @@ public interface CommonConstant {
     public static final String PREFIX_ADMIN_USER  = "prefix:admin:user_account_name_";
     /** 平台安全管理KEY前缀 */
     public static final String PREFIX_MANAGE_SECURITY  = "prefix:manage:security";
+    /** 前缀mqtt集 */
+    public static final String PREFIX_MQTT_SET  = "prefix:mqtt:set";
+
+    /** 文件KEY前缀 */
+    public static final String PREFIX_USER_FILE_TOKEN = "prefix:user:file:token_";
+    /** 文件KE业务前缀 */
+    public static final String PREFIX_USER_FILE_BUSINESS = "prefix:user:file:business";
+
     /**
      *  0：一级菜单
      */

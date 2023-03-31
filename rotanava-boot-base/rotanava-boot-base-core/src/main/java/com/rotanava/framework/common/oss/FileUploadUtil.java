@@ -5,15 +5,17 @@ import com.ejlchina.okhttps.HTTP;
 import com.rotanava.aliyun.oss.cfg.EndpointType;
 import com.rotanava.aliyun.oss.model.OssResultBean;
 import com.rotanava.aliyun.oss.util.OssClientUtil;
-import com.rotanava.framework.code.CommonException;
+
 import com.rotanava.framework.common.constant.CommonConstant;
 import com.rotanava.framework.common.oss.model.MinioResultBean;
 import com.rotanava.framework.common.oss.model.UploadResultBean;
-import com.rotanava.framework.exception.code.SysErrorCode;
 import com.rotanava.framework.util.BaseUtil;
 import com.rotanava.framework.util.ImageUtil;
 import com.rotanava.framework.util.StringUtil;
+import com.rotanava.framework.code.CommonException;
+import com.rotanava.framework.exception.code.SysErrorCode;
 import lombok.SneakyThrows;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -42,6 +44,8 @@ public class FileUploadUtil {
 
 
     public void setBucketPolicyReadOnly(String bucketName){
+
+
         switch (uploadType) {
             case CommonConstant.UPLOAD_TYPE_MINIO:
                 minioUtil.setBucketPolicy(bucketName);
@@ -51,6 +55,19 @@ public class FileUploadUtil {
             default:
                 throw new CommonException(SysErrorCode.SYS_ERROR_06);
         }
+    }
+
+    public static FileUploadUtil getMinIoFileUploadUtil(String endpoint,String accessKey, String secretKey){
+        MinioUtil minioUtil = MinioUtil.getMinioUtil(endpoint, accessKey, secretKey);
+        if (minioUtil!=null){
+            FileUploadUtil fileUploadUtil = new FileUploadUtil();
+            fileUploadUtil.setMinioUtil(minioUtil);
+            fileUploadUtil.setUploadType("minio");
+            return fileUploadUtil;
+        }
+
+        return null;
+
     }
 
     /**
@@ -89,7 +106,7 @@ public class FileUploadUtil {
      * @param inputStream
      * @return
      */
-    public UploadResultBean uploadFile(String bucketName, String objectName, InputStream inputStream, String suffix) {
+    public UploadResultBean uploadFile(String bucketName,String objectName, InputStream inputStream, String suffix) {
 
 
         switch (uploadType) {
@@ -113,7 +130,7 @@ public class FileUploadUtil {
      * @param inputStream
      * @return
      */
-    public UploadResultBean uploadFile(String bucketName, String objectName, InputStream inputStream) {
+    public UploadResultBean uploadFile(String bucketName,String objectName, InputStream inputStream) {
 
        return uploadFile(bucketName,objectName,inputStream,"");
     }
@@ -334,6 +351,11 @@ public class FileUploadUtil {
         }
     }
 
+    public void setUploadType(String uploadType) {
+        this.uploadType = uploadType;
+    }
 
-
+    public void setMinioUtil(MinioUtil minioUtil) {
+        this.minioUtil = minioUtil;
+    }
 }

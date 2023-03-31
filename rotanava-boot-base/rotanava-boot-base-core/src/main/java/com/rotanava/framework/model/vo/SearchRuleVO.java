@@ -27,7 +27,7 @@ public class SearchRuleVO {
     /**
      * 输入框类型 1文本输入框 2数字输入框 3日期输入框
      */
-    @Dict(dicCode = "searchInputType")
+//    @Dict(dicCode = "searchInputType")
     private Integer inputType;
 
 

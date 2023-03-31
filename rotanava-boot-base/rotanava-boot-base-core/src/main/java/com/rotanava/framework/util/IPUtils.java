@@ -27,6 +27,8 @@ public class IPUtils {
     private static final Pattern CIDR_PATTERN = Pattern.compile(SLASH_FORMAT);
 
 
+
+
     /**
      * 获取IP地址
      * <p>
@@ -34,6 +36,11 @@ public class IPUtils {
      * 如果使用了多级反向代理的话，X-Forwarded-For的值并不止一个，而是一串IP地址，X-Forwarded-For中第一个非unknown的有效IP字符串，则为真实IP地址
      */
     public static String getIpAddr(HttpServletRequest request) {
+
+        String cip = request.getHeader("cip");
+        if (!StringUtil.isNullOrEmpty(cip)&&!"unknown".equals(cip)){
+            return cip;
+        }
         String ip = request.getHeader("x-forwarded-for");
         if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip)) {
             // 多次反向代理后会有多个ip值，第一个ip才是真实ip

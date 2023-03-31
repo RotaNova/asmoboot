@@ -55,6 +55,26 @@ public class PageUtils {
         return page;
     }
 
+
+    public static <T> IPage<T> startPageNotCount(BaseDTO baseDTO) {
+        int pageNum = 1;
+        int pageSize = 10;
+
+        if (!StringUtil.isNullOrEmpty(baseDTO.getPageNum())) {
+            if (baseDTO.getPageNum() > 0) {
+                pageNum = baseDTO.getPageNum();
+            }
+        }
+        if (!StringUtil.isNullOrEmpty(baseDTO.getPageSize())) {
+            if (baseDTO.getPageSize() > 0) {
+                pageSize = baseDTO.getPageSize();
+            }
+        }
+        Page<T> page = new Page<>(pageNum, pageSize);
+        page.setSearchCount(false);
+        return page;
+    }
+
     public static <T> IPage<T> startPage(JSONObject json) {
         BaseDTO baseDTO = new BaseDTO();
         baseDTO.setPageNum(json.getIntValue("pageNum"));

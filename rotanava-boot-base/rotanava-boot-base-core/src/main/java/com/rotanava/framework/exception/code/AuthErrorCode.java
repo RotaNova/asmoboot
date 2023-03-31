@@ -42,5 +42,7 @@ public interface AuthErrorCode {
     ErrorCode AUTH_ERROR_25=new ErrorCode(1005018,"没有此权限！");
     ErrorCode AUTH_ERROR_26=new ErrorCode(1005018,"没有此分享权限！");
 
+    ErrorCode AUTH_ERROR_27=new ErrorCode(100504,"当前授权失效，请重新联系厂商授权后使用");
+
 
 }

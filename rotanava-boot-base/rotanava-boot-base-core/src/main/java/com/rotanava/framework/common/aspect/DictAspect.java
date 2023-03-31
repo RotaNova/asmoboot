@@ -132,6 +132,9 @@ public class DictAspect {
     }
 
     public JSONObject fieldParse(Object record) {
+        if (record==null){
+            return new JSONObject();
+        }
         ObjectMapper mapper = new ObjectMapper();
         String json = "{}";
         try {

@@ -1,16 +1,37 @@
 package com.rotanava.framework.util;
 
 import com.rotanava.framework.code.CommonException;
+import com.rotanava.framework.common.api.CommonApi;
+import com.rotanava.framework.config.dubbo.filter.UserSourceUtil;
+import com.rotanava.framework.config.shiro.CommonApiLazyService;
 import com.rotanava.framework.exception.code.SysErrorCode;
 import com.rotanava.framework.model.LoginUser;
+import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shiro.SecurityUtils;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.stereotype.Component;
+
+import java.util.Map;
 
 /**
  * @description: 系统工具类
  * @author: jintengzhou
  * @date: 2021-03-17 17:03
  */
-public class SysUtil {
+@Component
+public class SysUtil implements ApplicationContextAware {
+    @Autowired
+    private static ApplicationContext context;
+
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        context = applicationContext;
+    }
 
     /**
      * 功能: 获取当前登陆人员信息
@@ -20,11 +41,26 @@ public class SysUtil {
      */
     public static LoginUser getCurrentReqLoginUser() {
         //获取登录用户信息
+        LoginUser loginUser = null;
         try {
-            return (LoginUser) SecurityUtils.getSubject().getPrincipal();
+
+            loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
+
         } catch (Exception e) {
-            return null;
+            loginUser = null;
         }
+        try {
+            if (loginUser == null) {
+                if (!StringUtil.isNullOrEmpty(UserSourceUtil.getUserId())) {
+                    CommonApiLazyService bean = context.getBean(CommonApiLazyService.class);
+                    loginUser = bean.getCommonApi().getUserById(Integer.parseInt(UserSourceUtil.getUserId()));
+                }
+            }
+        } catch (Exception e) {
+            loginUser = null;
+        }
+
+        return loginUser;
     }
 
     /**

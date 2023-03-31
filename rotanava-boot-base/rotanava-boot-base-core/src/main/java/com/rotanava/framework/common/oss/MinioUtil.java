@@ -4,6 +4,7 @@ package com.rotanava.framework.common.oss;
 import com.rotanava.framework.common.constant.CommonConstant;
 import com.rotanava.framework.common.oss.model.MinioResultBean;
 import com.rotanava.framework.util.BaseUtil;
+import com.rotanava.framework.util.StringUtil;
 import io.minio.MinioClient;
 import io.minio.messages.Bucket;
 import lombok.SneakyThrows;
@@ -37,17 +38,49 @@ public class MinioUtil implements InitializingBean {
     @Value("${rotanava.uploadType}")
     private String uploadType;
 
+    @Value("${minio.externalUrl:}")
+    private String externalUrl;
+
     @Override
     public void afterPropertiesSet() throws Exception {
+
         if (client == null && CommonConstant.UPLOAD_TYPE_MINIO.equals(uploadType)) {
             try {
-                client = new MinioClient(endpoint, accessKey, secretKey);
+                initClient();
             } catch (Exception e) {
                 e.printStackTrace();
                 log.error("minio初始化失败，失败异常为{}",e);
             }
         }
     }
+
+    public void initClient() throws Exception{
+        client = new MinioClient(endpoint, accessKey, secretKey);
+
+    }
+
+
+
+
+    public static MinioUtil getMinioUtil(String endpoint,String accessKey, String secretKey) {
+        MinioUtil minioUtil = new MinioUtil();
+        minioUtil.setEndpoint(endpoint);
+        minioUtil.setAccessKey(accessKey);
+        minioUtil.setAccessKey(secretKey);
+        try {
+            minioUtil.initClient();
+            return minioUtil;
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("minio初始化失败，失败异常为{}", e);
+        }
+
+       return null;
+    }
+
+
+
+
 
 
     /**
@@ -83,6 +116,7 @@ public class MinioUtil implements InitializingBean {
      */
     @SneakyThrows
     public List<Bucket> getAllBuckets() {
+
         return client.listBuckets();
     }
 
@@ -132,12 +166,35 @@ public class MinioUtil implements InitializingBean {
      */
     @SneakyThrows
     private String getObjetcUrl(String bucketsName, String objName, int type, int time) {
-        if (type == 1) {
-            return client.getObjectUrl(bucketsName, objName);
-        } else {
-            return client.presignedGetObject(bucketsName, objName, time);
+        String url = null;
+        try {
+            if (type == 1) {
+                url = client.getObjectUrl(bucketsName, objName);
+            } else {
+                url = client.presignedGetObject(bucketsName, objName, time);
+            }
+        }catch (Exception e){
+            e.getMessage();
+            return null;
         }
+
+        return parseOutUrl(url);
     }
+
+    public String parseOutUrl(String url){
+        if (StringUtil.isNullOrEmpty(externalUrl)){
+            return url;
+        }
+        int i = url.indexOf("/", 8);
+
+        String substring = url.substring(0, i);
+
+        String replace = url.replace(substring, externalUrl);
+
+        return replace;
+    }
+
+
 
     @SneakyThrows
     public String getObjetcUrl(String bucketsName, String objName) {
@@ -244,4 +301,27 @@ public class MinioUtil implements InitializingBean {
     }
 
 
+    public String getEndpoint() {
+        return endpoint;
+    }
+
+    public void setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+    }
+
+    public String getAccessKey() {
+        return accessKey;
+    }
+
+    public void setAccessKey(String accessKey) {
+        this.accessKey = accessKey;
+    }
+
+    public String getSecretKey() {
+        return secretKey;
+    }
+
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
+    }
 }

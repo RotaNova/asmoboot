@@ -1,5 +1,6 @@
 package com.rotanava.framework.util;
 
+import com.rotanava.framework.common.constant.CommonConstant;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.Cipher;
@@ -15,20 +16,16 @@ public class AESUtil {
 
 
     public static void main(String[] args) throws Exception {
-       String value =  "xxxxxxxxxxxxxxxxxxxxxxxxxx:jsonsadascxszdawdwadasdawqrfqwqwqwqwqwqwqwqwqwqwqwqwqwdddddddddddq{dqwdqwd}d1d1:dw1d1cxcd";
-        String key = "1234567890123456";
-        System.out.println(Encrypt(value,key));
+       String value =  "RN@2020";
+        String key = CommonConstant.AES_DECRYPTION_KEY;
+        System.out.println(Decrypt(value,key));
     }
+
+
 
     // 加密
     public static String Encrypt(String sSrc, String sKey) throws Exception {
         if (sKey == null) {
-            System.out.print("Key为空null");
-            return null;
-        }
-        // 判断Key是否为16位
-        if (sKey.length() != 16) {
-            System.out.print("Key长度不是16位");
             return null;
         }
         byte[] raw = sKey.getBytes("utf-8");
@@ -49,10 +46,10 @@ public class AESUtil {
                 return null;
             }
             // 判断Key是否为16位
-            if (sKey.length() != 16) {
-                System.out.print("Key长度不是16位");
-                return null;
-            }
+//            if (sKey.length() != 16) {
+//                System.out.print("Key长度不是16位");
+//                return null;
+//            }
             byte[] raw = sKey.getBytes("utf-8");
             SecretKeySpec skeySpec = new SecretKeySpec(raw, "AES");
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");

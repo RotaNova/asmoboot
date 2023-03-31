@@ -171,7 +171,74 @@ public interface CacheConstant {
 
 	public static final String CLUSTER_PASSWORD = "RotaNova@2020";
 
+	/**
+	 * 人群逗留
+	 */
+	public static final String JET_LINK_TOKEN = "jet:link:token";
+
+	/**
+	 * 摔倒
+	 */
+	public static final String DETECTION_FALL  = "detection:fall";
+
+	/**
+	 * 离岗
+	 */
+	public static final String DETECTION_LEAVE_POST  = "detection:leave:post";
+
+	/**
+	 * 违停
+	 */
+	public static final String DETECTION_ILLEGAL_STOP  = "detection:illegal:stop";
+
+	/**
+	 * 违规作业
+	 */
+	public static final String DETECTION_ILLEGAL_WORK  = "detection:illegal:work";
+
+	/**
+	 * 人群聚集
+	 */
+	public static final String DETECTION_CROWD_GATHERED  = "detection:crowd:gathered";
+
+	/**
+	 * 消防
+	 */
+	public static final String DETECTION_FIRE_EXITS  = "detection:fire:exits";
+
+	/**
+	 * 检测疲劳
+	 */
+	public static final String DETECTION_FATIGUE  = "detection:fatigue";
 
 
+	/**
+	 * 区域入侵
+	 */
+	public static final String DETECTION_AREA_INVASION  = "detection:area:invasion";
 
+	/**
+	 * 离床
+	 */
+	public static final String DETECTION_LEAVE_LATHE  = "detection:leave:lathe";
+
+	/**
+	 * 值岗
+	 */
+	public static final String DETECTION_ON_DUTY  = "detection:on:duty";
+
+	/**
+	 * 人群逗留
+	 */
+	public static final String DETECTION_STAFF_STAY = "detection:staff:stay";
+
+	/**
+	 * 吸烟
+	 */
+	public static final String DETECTION_SMOKER = "detection:smoker";
+
+	/**
+	 * 睡岗
+	 */
+	public static final String SLEEP_POST = "detection:sleep:post";
 }

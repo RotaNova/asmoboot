@@ -1,7 +1,9 @@
 package com.rotanava.framework.config.shiro.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rotanava.framework.common.api.CommonApi;
 import com.rotanava.framework.common.constant.CommonConstant;
+import com.rotanava.framework.config.shiro.CommonApiLazyService;
 import com.rotanava.framework.config.shiro.JwtToken;
 import com.rotanava.framework.config.shiro.UrlPermission;
 import com.rotanava.framework.exception.code.AuthErrorCode;
@@ -15,7 +17,13 @@ import org.apache.shiro.authz.UnauthenticatedException;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
 import org.apache.shiro.web.servlet.ShiroHttpServletRequest;
+import org.springframework.beans.factory.SmartInitializingSingleton;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.ServletRequest;
@@ -32,15 +40,27 @@ import java.nio.charset.StandardCharsets;
  * @Date : 2020/9/1 13:51
  */
 @Slf4j
-public class JwtFilter extends BasicHttpAuthenticationFilter {
+@Component
+public class JwtFilter extends BasicHttpAuthenticationFilter  {
 
     private boolean allowOrigin = true;
+
+
+    @Value("${spring.application.name}")
+    private String applicationName;
+
+
+    ConfigurableApplicationContext context;
+
+
 
     public JwtFilter() {
     }
 
-    public JwtFilter(boolean allowOrigin) {
+    public JwtFilter(boolean allowOrigin,String applicationName,ConfigurableApplicationContext context) {
         this.allowOrigin = allowOrigin;
+        this.applicationName = applicationName;
+        this.context = context;
     }
 
     /**
@@ -64,8 +84,24 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
             getSubject(request, response).checkPermission(urlPermission);
             long end = System.currentTimeMillis();
             log.debug("shiro验权耗时{}ms", (end - begin));
+
+            //校验是否可以访问
+
+            CommonApiLazyService commonApiLazyService = context.getBean(CommonApiLazyService.class);
+
+            boolean systemAuthStatus = commonApiLazyService.getCommonApi().getSystemAuthStatus();
+            if (systemAuthStatus){
+                if (!applicationName.equals("rotanava-boot-module-system")){
+                    os.write(new ObjectMapper().writeValueAsString(RetData.error(AuthErrorCode.AUTH_ERROR_27)).getBytes(StandardCharsets.UTF_8));
+                    os.flush();
+                    os.close();
+                    return false;
+                }
+            }
+
             return true;
         } catch (AuthorizationException e) {
+
             if (e instanceof UnauthorizedException) {
                 os.write(new ObjectMapper().writeValueAsString(RetData.error(AuthErrorCode.AUTH_ERROR_04)).getBytes(StandardCharsets.UTF_8));
             } else if (e instanceof UnauthenticatedException) {
@@ -77,6 +113,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
             os.write(new ObjectMapper().writeValueAsString(RetData.error().code(100500).message(e.getMessage())).getBytes(StandardCharsets.UTF_8));
 
         } catch (Exception e) {
+            e.printStackTrace();
             os.write(new ObjectMapper().writeValueAsString(RetData.error().code(500).message("服务运行异常")).getBytes(StandardCharsets.UTF_8));
         }
         os.flush();

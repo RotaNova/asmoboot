@@ -62,4 +62,9 @@ public interface CommonErrorCode {
     ErrorCode COMMON_ERROR_49 = new ErrorCode(100249, "钉钉数据不一致,请重试！");
     ErrorCode COMMON_ERROR_50 = new ErrorCode(100250, "同步钉钉数据入库失败");
     ErrorCode COMMON_ERROR_51 = new ErrorCode(100250, "请配置钉钉配置数据！");
+    ErrorCode COMMON_ERROR_52 = new ErrorCode(100250, "钉钉配置连接失败!");
+    ErrorCode COMMON_ERROR_53 = new ErrorCode(100251, "AI能力未设置！无法启用！");
+    ErrorCode COMMON_ERROR_54 = new ErrorCode(100252, "图片流或视频流未启动一项！无法启用！");
+    ErrorCode COMMON_ERROR_55 = new ErrorCode(100253, "生效日期未设置！无法启用！");
+    ErrorCode COMMON_ERROR_56 = new ErrorCode(100254, "抽帧率或置信度为空！无法启用！");
 }

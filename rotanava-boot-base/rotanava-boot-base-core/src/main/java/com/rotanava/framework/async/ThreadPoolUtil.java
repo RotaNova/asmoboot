@@ -74,7 +74,7 @@ public class ThreadPoolUtil {
             synchronized (ThreadPoolUtil.class) {
                 if (threadPool == null) {
                     final int availableProcessors = Runtime.getRuntime().availableProcessors();
-                    threadPool = new ThreadPoolExecutor(availableProcessors, availableProcessors * 2, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<>(availableProcessors * 10), r -> {
+                    threadPool = new ThreadPoolExecutor(availableProcessors, availableProcessors * 3, 60, TimeUnit.SECONDS, new LinkedBlockingQueue<>(availableProcessors * 10), r -> {
                         final Thread thread = new Thread(Thread.currentThread().getThreadGroup(), r, THREAD_NAME + "-" + THREAD_COUNT);
                         THREAD_COUNT.incrementAndGet();
                         return thread;

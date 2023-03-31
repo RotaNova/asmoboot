@@ -41,4 +41,7 @@ public class BaseVO<T> implements Serializable {
      * 列表数据
      */
     private List<T> records;
+
+
+
 }

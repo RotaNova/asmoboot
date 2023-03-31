@@ -26,4 +26,5 @@ public interface DeviceErrorCode {
     ErrorCode DEVICE_ERROR_13 = new ErrorCode(130413, "设备取回放失败");
     ErrorCode DEVICE_ERROR_14 = new ErrorCode(130414, "设备同步人员失败");
     ErrorCode DEVICE_ERROR_15 = new ErrorCode(130415, "设备调用服务失败");
+    ErrorCode DEVICE_ERROR_16 = new ErrorCode(130416, "该设备获取直播链接失败，请先检查参数配置及设备是否在线");
 }

@@ -26,10 +26,12 @@ public class RabbitmqUtil {
      * 版本: 1.0
      */
     public void sendDelayMessage(long delayTime, String exchange, String routingkey, Object msgBody) {
+        //
         if (delayTime > 0) {
             this.rabbitTemplate.convertAndSend(RabbitmqConfig.DELAY_EXCHANGE, RabbitmqConfig.DELAY_ROUTINGKEY, msgBody, message -> {
                 final MessageProperties messageProperties = message.getMessageProperties();
                 //注意这里时间要是字符串形式
+//                messageProperties.setDelay((int) delayTime);
                 messageProperties.setExpiration(Convert.toStr(delayTime));
                 messageProperties.setDeliveryMode(MessageDeliveryMode.PERSISTENT);
                 messageProperties.setHeader(RabbitmqConfig.EXCHANGE, exchange);

@@ -18,7 +18,9 @@ import org.crazycake.shiro.RedisClusterManager;
 import org.crazycake.shiro.RedisManager;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
@@ -49,6 +51,15 @@ public class ShiroConfig {
     
     @Autowired
     private Environment env;
+
+    @Value("${spring.application.name}")
+    private String applicationName;
+
+    @Autowired
+    JwtFilter jwtFilter;
+
+    @Autowired
+    ConfigurableApplicationContext context;
     
     
     /**
@@ -141,6 +152,8 @@ public class ShiroConfig {
         filterChainDefinitionMap.put("/actuator/**", "anon");
         filterChainDefinitionMap.put("/v1/accessDevice/getUrl", "anon");
         filterChainDefinitionMap.put("/v1/cloudVideo/getMp4", "anon");
+        filterChainDefinitionMap.put("/v1/systemAuth/getAiAuthInfo", "anon");
+
         
         //filterChainDefinitionMap.put("/v1/ManagePermission/**", "anon");
 //        filterChainDefinitionMap.put("/v1/sysDict/**", "anon");
@@ -165,7 +178,7 @@ public class ShiroConfig {
         Map<String, Filter> filterMap = new HashMap<String, Filter>(1);
         //如果cloudServer为空 则说明是单体 需要加载跨域配置
         Object cloudServer = env.getProperty(CommonConstant.CLOUD_SERVER_KEY);
-        filterMap.put("jwt", new JwtFilter(cloudServer == null));
+        filterMap.put("jwt", new JwtFilter(cloudServer == null,applicationName,context));
         shiroFilterFactoryBean.setFilters(filterMap);
         // <!-- 过滤链定义，从上向下顺序执行，一般将/**放在最为下边
         filterChainDefinitionMap.put("/**", "jwt");

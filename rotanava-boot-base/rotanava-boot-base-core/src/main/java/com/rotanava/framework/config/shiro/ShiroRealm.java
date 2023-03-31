@@ -143,7 +143,7 @@ public class ShiroRealm extends AuthorizingRealm implements SmartInitializingSin
         // 解密获得userAccountName，用于和数据库进行对比
         String userAccountName = JwtUtil.getUserAccountName(token);
         if (userAccountName == null) {
-            throw new UnsupportedTokenException("认证失效请重新登录");
+            throw new IncorrectCredentialsException("认证失效请重新登录");
         }
         
         // 查询用户信息
@@ -158,7 +158,8 @@ public class ShiroRealm extends AuthorizingRealm implements SmartInitializingSin
         }
         // 校验token是否超时失效 & 或者账号密码是否错误
         jwtTokenRefresh(token, userAccountName, loginUser.getId(), loginUser.getUserPassword());
-        
+
+
         return loginUser;
     }
     

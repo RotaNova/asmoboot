@@ -689,4 +689,9 @@ public class RedisUtil {
                 LocalDateTime.now().minus(duration).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli());
     }
 
+
+    public Set<String> getExpired(Long min ,Long max) {
+        return this.stringRedisTemplate.opsForZSet().rangeByScore(CommonConstant.PREFIX_ACTIVE_USER_TOKEN, min,max);
+    }
+
 }

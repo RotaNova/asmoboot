@@ -153,5 +153,7 @@ public interface CommonApi {
 
     List<SysSearchConfig> getConfigByPageId(String searchCode);
 
+    boolean getSystemAuthStatus();
+
 
 }

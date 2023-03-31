@@ -2,6 +2,8 @@ package com.rotanava.framework.util;
 
 
 //import com.google.api.client.util.Base64;
+import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.web.multipart.MultipartFile;
 import sun.misc.BASE64Decoder;
@@ -9,14 +11,17 @@ import sun.misc.BASE64Encoder;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
+import java.awt.*;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.math.BigDecimal;
+import java.text.Normalizer;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
+@Log4j2
 public class ImageUtil {
 
     public static byte[] toByteArray(InputStream input) throws IOException {
@@ -28,6 +33,44 @@ public class ImageUtil {
         }
         return output.toByteArray();
     }
+
+    public static BufferedImage getImageInfo(String chart) {
+        try {
+            if (StringUtils.isNotEmpty(chart)) {
+                byte[] decoder = new BASE64Decoder().decodeBuffer(chart);
+                InputStream is = new ByteArrayInputStream(decoder);
+                return ImageIO.read(is);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * BufferedImage 编码转换为 base64
+     *
+     * @param bufferedImage
+     * @return
+     */
+    public static String BufferedImageToBase64(BufferedImage bufferedImage) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();//io流
+        try {
+            ImageIO.write(bufferedImage, "png", baos);//写入流中
+        } catch (Exception e) {
+            log.error("BufferedImage 编码转换为 base64 出错 原因 = {}", e.getMessage());
+        }
+        byte[] bytes = baos.toByteArray();//转换成字节
+        BASE64Encoder encoder = new BASE64Encoder();
+        String png_base64 = encoder.encodeBuffer(bytes).trim();//转换成base64串
+        png_base64 = png_base64.replaceAll("\n", "").replaceAll("\r", "");//删除 \r\n
+        return png_base64;
+    }
+
+
+
+
+
     /**
      * base64转输入流
      *
@@ -251,10 +294,10 @@ public class ImageUtil {
         return imagePath;
     }
 
-    public static String saveFile(InputStream inputStream, String path) {
+    public static String saveFile(InputStream inputStream, String path,String fileName) {
 
         OutputStream os = null;
-        String fileName = UUID.randomUUID().toString() + ".jpg";
+//        String fileName = UUID.randomUUID().toString() + ".jpg";
         String imagePath = path;
         try {
             byte[] bs = new byte[1024];
@@ -436,6 +479,36 @@ public class ImageUtil {
         return new String(Base64.encodeBase64(data));
     }
 
+
+    /**
+     * 获取多边形的中心
+     * @param str
+     * @return
+     */
+    public static Point2D.Double getCenterOfGravityPoint(List<Point2D.Double> mPoints) {
+        double area = 0.0;//多边形面积
+        double Gx = 0.0, Gy = 0.0;// 重心的x、y
+        for (int i = 1; i <= mPoints.size(); i++) {
+            double iLat = mPoints.get(i % mPoints.size()).getX();
+            double iLng = mPoints.get(i % mPoints.size()).getY();
+            double nextLat = mPoints.get(i - 1).getX();
+            double nextLng = mPoints.get(i - 1).getY();
+            double temp = (iLat * nextLng - iLng * nextLat) / 2.0;
+            area += temp;
+            Gx += temp * (iLat + nextLat) / 3.0;
+            Gy += temp * (iLng + nextLng) / 3.0;
+        }
+        Gx = Gx / area;
+        Gy = Gy / area;
+
+        Point2D.Double point = new Point2D.Double(Gx,Gy);
+        return point;
+    }
+
+
+
+
+
     /****
      * 判断点是否在多边形内（不包含边界）
      *
@@ -445,6 +518,103 @@ public class ImageUtil {
      * @return
      */
     public static boolean checkWithGeneralPath(Point2D.Double point, List<Point2D.Double> polygon) {
+
+
+        GeneralPath p = new GeneralPath();
+        if (polygon.size() <= 0) {
+            return false;
+        }
+        // 初始化起点坐标
+        Point2D.Double first = polygon.get(0);
+        p.moveTo(first.x, first.y);
+//        polygon.remove(0);
+
+
+        for (Point2D.Double d : polygon) {
+
+            // 遍历点，并按遍历的顺序画线
+            p.lineTo(d.x, d.y);
+        }
+        p.lineTo(first.x, first.y);
+
+        p.closePath();
+        return p.contains(point);
+    }
+
+
+    /**
+     * @description: 点在矩形
+     * @param {*} x0 校验
+     * @param {*} y0 校验
+     * @param {*} x1
+     * @param {*} x2
+     * @param {*} y1
+     * @param {*} y2
+     * @return {*}
+     */
+    public static boolean isPointInTwo(Point2D.Double point, List<Point2D.Double> polygon) {
+        Double x0 = point.x;
+        Double y0 = point.y;
+        Double  x1 = polygon.get(0).x;
+        Double x2 = polygon.get(2).x;
+        Double y1 = polygon.get(0).y;
+        Double y2 =  polygon.get(1).y;
+
+        if (
+                x0 > Math.min(x1, x2) &&
+                        x0 < Math.max(x1, x2) &&
+                        y0 > Math.min(y1, y2) &&
+                        y0 < Math.max(y1, y2)
+        ) {
+            //在
+            return true;
+        } else {
+            // 不在
+            return false;
+        }
+
+
+    }
+    /**
+     * @description: 点在矩形
+     * @param {*} x0 校验
+     * @param {*} y0 校验
+     * @param {*} x1
+     * @param {*} x2
+     * @param {*} y1
+     * @param {*} y2
+     * @return {*}
+     */
+    public static boolean isPointInTwo(Double x0, Double y0,Double  x1,Double x2, Double y1, Double y2) {
+
+
+        if (
+                x0 > Math.min(x1, x2) &&
+                        x0 < Math.max(x1, x2) &&
+                        y0 > Math.min(y1, y2) &&
+                        y0 < Math.max(y1, y2)
+        ) {
+            //在
+            return true;
+        } else {
+            // 不在
+            return false;
+        }
+
+
+    }
+
+    /****
+     * 判断点是否在多边形内（不包含边界）
+     *
+     * @author richenLi
+     * @param point 点
+     * @param polygon 多边形
+     * @return
+     */
+    public static boolean checkWithGeneralPath(Double x,Double y ,Double w ,Double h, List<Point2D.Double> polygon) {
+
+
         GeneralPath p = new GeneralPath();
         if (polygon.size() <= 0) {
             return false;
@@ -460,7 +630,7 @@ public class ImageUtil {
         p.lineTo(first.x, first.y);
 
         p.closePath();
-        return p.contains(point);
+        return p.contains(x,y,w,h);
     }
 
 
@@ -485,5 +655,75 @@ public class ImageUtil {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static double StandardDiviation(double[] x) {
+        int m=x.length;
+        double sum=0;
+        for(int i=0;i<m;i++){//求和
+            sum+=x[i];
+        }
+        double dAve=sum/m;//求平均值
+        double dVar=0;
+        for(int i=0;i<m;i++){//求方差
+            dVar+=(x[i]-dAve)*(x[i]-dAve);
+        }
+        return Math.sqrt(dVar/m);
+    }
+
+    public static double[][] img2color(BufferedImage img){
+        double[][] doubles = new double[3][];
+        try {
+            int[] colors = new int[img.getWidth() * img.getHeight()];
+
+            img.getRGB(0, 0, img.getWidth(), img.getHeight(), colors, 0, img.getWidth());
+
+            double[] red = new double[colors.length];
+
+            double[] green = new double[colors.length];
+
+            double[] blue = new double[colors.length];
+
+            for (int i = 0; i < colors.length; i++) {
+
+                Color color = new Color(colors[i]);
+
+                red[i] = (double)color.getRed();
+
+                green[i] =(double) color.getGreen();
+
+                blue[i] = (double)color.getBlue();
+            }
+
+
+            doubles[0]=red;
+            doubles[1]=green;
+            doubles[2]=blue;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return doubles;
+    }
+
+
+    public static BufferedImage resize(BufferedImage img, int newW, int newH) {
+        int w = img.getWidth();
+
+        int h = img.getHeight();
+
+        BufferedImage dimg = new BufferedImage(newW, newH, img.getType());
+
+        Graphics2D g = dimg.createGraphics();
+
+        g.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+
+        g.drawImage(img, 0, 0, newW, newH, 0, 0, w, h, null);
+
+        g.dispose();
+
+        return dimg;
+
     }
 }

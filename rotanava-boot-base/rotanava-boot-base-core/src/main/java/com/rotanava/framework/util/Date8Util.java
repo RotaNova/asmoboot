@@ -172,6 +172,20 @@ public class Date8Util {
         return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
     }
 
+
+    /**
+     * 增加时间
+     *
+     * @param date date
+     * @param hour 要增加的天数
+     * @return new date
+     */
+    public static Date addDays(Date date, Long days) {
+        LocalDateTime dateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+        LocalDateTime localDateTime = dateTime.plusDays(days);
+        return Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+    }
+
     /**
      * @return 返回当天的起始时间
      */
@@ -256,6 +270,8 @@ public class Date8Util {
 
         return localDate2Date(localDate);
     }
+
+
 
     /**
      * LocalDate类型转为Date
@@ -554,6 +570,7 @@ public class Date8Util {
     public static boolean between(Date startTime, Date endTime, Date compareTime) {
         return compareTime.getTime() >= startTime.getTime() && compareTime.getTime() <= endTime.getTime();
     }
+
 
     /**
      * 第二个时间

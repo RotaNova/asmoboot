@@ -33,6 +33,10 @@ public class AsyncUtil {
         }
     }
 
+//    public boolean containsKey(String rnMsgId){
+//       return messageMap.containsKey(rnMsgId);
+//    }
+
     //存放同步消息线程 key为msgId，value为线程对象
     private static ConcurrentHashMap<String, SyncFuture> messageMap = new ConcurrentHashMap<>();
 
