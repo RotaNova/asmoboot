@@ -3,6 +3,8 @@ package com.rotanava.boot.system.module.system.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.ejlchina.okhttps.HTTP;
+import com.ejlchina.okhttps.HttpResult;
 import com.google.common.collect.Lists;
 import com.rotanava.boot.system.api.module.system.bo.SysPageDataConfig;
 import com.rotanava.boot.system.api.module.system.bo.SysPageModuleType;
@@ -31,12 +33,14 @@ import com.rotanava.framework.model.bo.SysSearchConfig;
 import com.rotanava.framework.model.vo.SearchOptionVO;
 import com.rotanava.framework.model.vo.SearchRuleVO;
 import com.rotanava.framework.module.dao.SysSearchConfigMapper;
+import com.rotanava.framework.util.BuildUtil;
 import com.rotanava.framework.util.RedisUtil;
 import com.rotanava.framework.util.StringUtil;
 import com.rotanava.framework.util.SysUtil;
 import org.apache.dubbo.config.annotation.DubboReference;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -129,14 +133,22 @@ public class CommonController {
 //        return new RetData(ruleList);
         return null;
     }
-
+    List<SearchRuleVO> searchConfig;
 
     @AdviceResponseBody
     @GetMapping("/getAllSearchConfig")
     @AutoLog(value = "获取全部搜索条件", operateType = OperateTypeEnum.SELECT)
     public RetData getAllSearchConfig() {
+        Object searchConfigObject = redisUtil.get("allSearchConfig");
+        if (searchConfigObject!=null){
+            return new RetData(searchConfigObject);
+        }
+//        if (searchConfig!=null){
+//            return new RetData(searchConfig);
+//        }
 
         List<SysSearchConfig> configByPageId = sysSearchConfigMapper.getAllConfig();
+
 
         List<SearchRuleVO> ruleList = new ArrayList<>();
         for (SysSearchConfig sysSearchConfig : configByPageId) {
@@ -170,6 +182,8 @@ public class CommonController {
 
             ruleList.add(searchRuleVO);
         }
+//        searchConfig = ruleList;
+       redisUtil.set("allSearchConfig",ruleList);
         return new RetData(ruleList);
     }
 
@@ -326,5 +340,26 @@ public class CommonController {
         return RetData.ok(welcomePageVOList);
     }
 
+    @Value("${rotanava.query.url:http://QAService:8866}")
+    private String queryUrl;
+
+    @AdviceResponseBody
+    @PostMapping("/aiIssueQuery")
+    @AutoLog(value = "AI文档搜索", operateType = OperateTypeEnum.SELECT)
+    public RetData aiIssueQuery(@RequestBody JSONObject bodyJson) {
+        String query = bodyJson.getString("query");
+        Integer topK = bodyJson.getInteger("topK");
+
+        HTTP http = HTTP.builder().baseUrl(queryUrl).build();
+        HttpResult httpResult = http.sync("/query").addJsonParam("query", query).addJsonParam("topK", topK).post();
+        JSONObject resultJson = httpResult.getBody().toJsonObject();
+        int status = resultJson.getIntValue("status");
+        if (200==status){
+            JSONObject json = new JSONObject();
+            json.put("results",resultJson.getJSONArray("results"));
+            return new RetData(json);
+        }
+        return BuildUtil.buildError(500,String.format("失败原因为%s",resultJson.toJSONString()));
+    }
 
 }

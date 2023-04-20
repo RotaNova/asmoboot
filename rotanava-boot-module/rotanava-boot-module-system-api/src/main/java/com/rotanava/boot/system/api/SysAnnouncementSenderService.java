@@ -44,7 +44,7 @@ public interface SysAnnouncementSenderService {
      * 版本: 1.0
      */
     void sendAnnouncement(Integer sysAnnConfigId, @NotBlank @Size(max = 66) String title,
-                          @Size(max = 66) String abstractContent, String content, AnnPriorityType annPriorityType);
+                          String abstractContent, String content, AnnPriorityType annPriorityType);
 
 
     /**
@@ -53,7 +53,7 @@ public interface SysAnnouncementSenderService {
      * 日期: 2021/4/2 16:47
      * 版本: 1.0
      */
-    void sendAnnouncementByHasSysAnnoId(SysAnnConfigIdEnum sysAnnConfigIdEnum, Integer sysAnnoId, Collection<Integer> sysUserIds, AnnPriorityType annPriorityType);
+    void sendAnnouncementByHasSysAnnoId(Integer sysAnnConfigId, Integer sysAnnoId, Collection<Integer> sysUserIds, AnnPriorityType annPriorityType);
 
 
     /**

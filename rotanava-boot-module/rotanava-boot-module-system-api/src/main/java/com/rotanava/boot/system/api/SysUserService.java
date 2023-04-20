@@ -34,6 +34,7 @@ import com.rotanava.framework.model.BaseVO;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.annotation.Validated;
 
+import javax.mail.Message;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.util.List;

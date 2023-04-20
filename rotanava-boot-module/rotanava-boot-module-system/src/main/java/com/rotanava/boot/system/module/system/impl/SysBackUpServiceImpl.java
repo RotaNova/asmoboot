@@ -44,6 +44,8 @@ public class SysBackUpServiceImpl extends ServiceImpl<SysBackupMapper, SysBackup
     private FileUploadUtil fileUploadUtil;
 
 
+
+
     @Override
     public void sysBackUp(Integer backupType, Integer serviceType) {
         try {
@@ -86,14 +88,6 @@ public class SysBackUpServiceImpl extends ServiceImpl<SysBackupMapper, SysBackup
         } else {
             return "UnknownBackUp";
         }
-    }
-
-    public static void main(String[] args) {
-
-        File file = new File("D:\\搜狗高速下载\\hins16405205_data_20210119123720_qp.xb");
-        System.out.println(FileUtil.FormetFileSize(file.length()));
-        SimpleDateFormat df = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");//设置日期格式
-        System.out.println(DateUtil.getNowTime(df));
     }
 
 
@@ -198,5 +192,34 @@ public class SysBackUpServiceImpl extends ServiceImpl<SysBackupMapper, SysBackup
         }
         BaseVO<SysBackupVO> baseVO = BuildUtil.buildListVO(page.getTotal(), list);
         return baseVO;
+    }
+
+
+    @Override
+    public void systemFactoryReset(){
+
+        Process process = null;
+        ProcessBuilder builder = new ProcessBuilder();
+        try {
+            String command = String.format("mysql -h rotanavamysql -u %s -P 3306 -p%s  -Drn_base_sys  </docker-entrypoint-initdb.d/c_rn_base_sys.sql ", userName, password);
+            log.info("systemFactoryReset command={}", command);
+            process = builder.command("bash", "-c", command).start();
+            BufferedReader br = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            String line = "";
+            while ((line = br.readLine()) != null) {
+                log.info("systemFactoryReset[" + line + "]");
+            }
+        }catch (Exception e){
+            log.error("恢复出厂设置异常",e);
+        }finally {
+            if (process!=null){
+                try {
+                    process.destroy();
+                }catch (Exception e){
+                    log.error(e);
+                }
+            }
+        }
+
     }
 }

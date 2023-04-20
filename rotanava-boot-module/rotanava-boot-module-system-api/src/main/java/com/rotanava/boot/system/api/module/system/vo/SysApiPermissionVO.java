@@ -62,4 +62,8 @@ public class SysApiPermissionVO implements Serializable {
     @Dict(dicCode = "api_auth_type")
     private Integer apiAuthType;
 
+    /**
+     * 系统页面模块类型id
+     */
+    private Integer sysPageModuleTypeId;
 }

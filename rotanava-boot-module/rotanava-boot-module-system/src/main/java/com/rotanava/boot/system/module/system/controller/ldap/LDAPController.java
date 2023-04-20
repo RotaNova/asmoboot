@@ -2,6 +2,7 @@ package com.rotanava.boot.system.module.system.controller.ldap;
 
 import com.rotanava.boot.system.api.LDAPService;
 import com.rotanava.boot.system.api.module.system.dto.UpdateLdapDTO;
+import com.rotanava.boot.system.api.module.system.dto.ldap.LdapTestLoginDTO;
 import com.rotanava.boot.system.api.module.system.vo.GetLdapVO;
 import com.rotanava.framework.common.aspect.annotation.AdviceResponseBody;
 import com.rotanava.framework.common.aspect.annotation.AutoLog;
@@ -43,6 +44,32 @@ public class LDAPController {
     @PutMapping("/updateLdap")
     public RetData<Void> updateLdap(@RequestBody UpdateLdapDTO updateLdapDTO) {
         ldapService.updateLdap(updateLdapDTO);
+        return RetData.ok();
+    }
+
+
+    @AutoLog(value = "测试ldap连接",operateType = OperateTypeEnum.SELECT)
+    @AdviceResponseBody
+    @PostMapping("/testConnection")
+    public RetData<Void> testConnection(@RequestBody UpdateLdapDTO updateLdapDTO) {
+        ldapService.testConnection(updateLdapDTO);
+        return RetData.ok();
+    }
+
+
+    @AutoLog(value = "测试ldap登录",operateType = OperateTypeEnum.SELECT)
+    @AdviceResponseBody
+    @PostMapping("/testLDAPLogin")
+    public RetData testLDAPLogin(@RequestBody LdapTestLoginDTO ldapTestLoginDTO) {
+        return RetData.ok(ldapService.LDAPLogin(ldapTestLoginDTO));
+    }
+
+
+    @AutoLog(value = "ldap用户一键导入",operateType = OperateTypeEnum.ADD)
+    @AdviceResponseBody
+    @PostMapping("/ldapUserImport")
+    public RetData ldapUserImport() {
+        ldapService.ldapUserImport();
         return RetData.ok();
     }
 

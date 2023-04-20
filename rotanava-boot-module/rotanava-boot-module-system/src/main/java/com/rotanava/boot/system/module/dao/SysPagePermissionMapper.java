@@ -49,6 +49,18 @@ public interface SysPagePermissionMapper extends BaseMapper<SysPagePermission> {
     List<SysPagePermission> findBySysUserId(@Param("sysUserId") Integer sysUserId, @Param("sysPageModuleTypeId") Integer sysPageModuleTypeId);
 
     /**
+     * 按页面id和用户id查询
+     *
+     * @param sysUserId 系统的用户id
+     * @param sysPageId 系统页面id
+     * @return {@link SysPagePermission }
+     * @author weiqiangmiao
+     * @date 2022/02/17
+     * @update [序号][日期YYYY-MM-DD][更改人姓名][变更描述]
+     */
+    SysPagePermission findBySysUserIdAndSysPageId(@Param("sysUserId") Integer sysUserId, @Param("sysPageId") Integer sysPageId);
+
+    /**
      * 选择所有
      *
      * @return {@link List<SysPagePermission> }
@@ -139,4 +151,29 @@ public interface SysPagePermissionMapper extends BaseMapper<SysPagePermission> {
     SysPagePermission findByPageCode(@Param("pageCode") String pageCode);
 
     Integer findIdByPageUrl(@Param("pageUrl") String pageUrl);
+
+    /**
+     * 找到所有的系统用户id
+     *
+     * @param sysPageId 系统页面id
+     * @return {@link SysPagePermission }
+     * @author weiqiangmiao
+     * @date 2022/02/17
+     * @update [序号][日期YYYY-MM-DD][更改人姓名][变更描述]
+     */
+    SysPagePermission findAllBySysUserId(Integer sysPageId);
+
+    /**
+     * 更新页面显示通过系统页面模块类型id
+     *
+     * @param updatedPageShow     更新页面显示
+     * @param sysPageModuleTypeId 系统页面模块类型id
+     * @return int
+     * @author weiqiangmiao
+     * @date 2022/03/11
+     * @update [序号][日期YYYY-MM-DD][更改人姓名][变更描述]
+     */
+    int updatePageShowBySysPageModuleTypeId(@Param("updatedPageShow")Integer updatedPageShow,@Param("sysPageModuleTypeId")Integer sysPageModuleTypeId);
+
+
 }

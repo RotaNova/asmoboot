@@ -2,6 +2,8 @@ package com.rotanava.boot.system.module.system.impl;
 
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.rotanava.boot.system.api.DingTalkRobotService;
 import com.rotanava.boot.system.api.SysAnnouncementSenderService;
 import com.rotanava.boot.system.api.SysAnnouncementService;
 import com.rotanava.boot.system.api.SysUserAnnouncementService;
@@ -21,13 +23,11 @@ import com.rotanava.boot.system.api.module.system.bo.SysUserAnnouncement;
 import com.rotanava.boot.system.api.module.system.bo.SysUserAnnouncementConfig;
 import com.rotanava.boot.system.api.module.system.dto.AddAnnouncementDTO;
 import com.rotanava.boot.system.api.module.system.dto.SendAnnouncementDTO;
+import com.rotanava.boot.system.api.module.system.dto.SendDingTalkDTO;
 import com.rotanava.boot.system.api.module.system.dto.SendSysAnnouncementDTO;
 import com.rotanava.boot.system.api.module.system.event.AnnouncementWindowsUnReadNumEvent;
-import com.rotanava.boot.system.module.dao.SysAnnouncementConfigMapper;
-import com.rotanava.boot.system.module.dao.SysAnnouncementMapper;
-import com.rotanava.boot.system.module.dao.SysUserAnnouncementConfigMapper;
-import com.rotanava.boot.system.module.dao.SysUserAnnouncementMapper;
-import com.rotanava.boot.system.module.dao.SysUserMapper;
+import com.rotanava.boot.system.api.module.system.vo.AnnouncementInfoVO;
+import com.rotanava.boot.system.module.dao.*;
 import com.rotanava.boot.system.module.system.mq.MqTransactionalMessageSender;
 import com.rotanava.boot.system.module.system.mq.SysAnnouncementSendListenter;
 import com.rotanava.framework.async.ThreadPoolUtil;
@@ -36,6 +36,7 @@ import com.rotanava.framework.common.constant.enums.UserStatus;
 import com.rotanava.framework.exception.code.DBErrorCode;
 import com.rotanava.boot.system.util.MailUtil;
 import com.rotanava.framework.util.socket.PcMessageUtil;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +46,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -57,7 +59,11 @@ import java.util.List;
 @Service
 @DubboService
 @Transactional(rollbackFor = Throwable.class)
+@Log4j2
 public class SysAnnouncementSenderServiceImpl implements SysAnnouncementSenderService {
+
+    @Autowired
+    private SysUserDepartmentMapper sysUserDepartmentMapper;
 
     @Autowired
     private SysUserMapper sysUserMapper;
@@ -96,6 +102,9 @@ public class SysAnnouncementSenderServiceImpl implements SysAnnouncementSenderSe
     @Autowired
     private ApplicationContext applicationContext;
 
+    @Autowired
+    private DingTalkRobotService dingTalkRobotService;
+
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -105,7 +114,7 @@ public class SysAnnouncementSenderServiceImpl implements SysAnnouncementSenderSe
 
     @Override
     public void sendAnnouncementAsync(SysAnnConfigIdEnum sysAnnConfigIdEnum, String title, String abstractContent, String content, Collection<Integer> sysUserIds, AnnPriorityType annPriorityType) {
-        ThreadPoolUtil.execute(()->{
+        ThreadPoolUtil.execute(() -> {
             sendAnnouncement(sysAnnConfigIdEnum.getSysAnnConfigId(), null, title, abstractContent, content, sysUserIds, annPriorityType);
         });
     }
@@ -113,14 +122,17 @@ public class SysAnnouncementSenderServiceImpl implements SysAnnouncementSenderSe
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void sendAnnouncement(Integer sysAnnConfigId, String title, String abstractContent, String content, AnnPriorityType annPriorityType) {
-        sendAnnouncement(sysAnnConfigId, null, title, abstractContent, content, null, annPriorityType);
+        ThreadPoolUtil.execute(() -> sendAnnouncement(sysAnnConfigId, null, title, abstractContent, content, null, annPriorityType));
+
     }
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public void sendAnnouncementByHasSysAnnoId(SysAnnConfigIdEnum sysAnnConfigIdEnum, Integer sysAnnoId, Collection<Integer> sysUserIds, AnnPriorityType annPriorityType) {
-        sendAnnouncement(sysAnnConfigIdEnum.getSysAnnConfigId(), sysAnnoId, null, null, null, sysUserIds, annPriorityType);
+    public void sendAnnouncementByHasSysAnnoId(Integer sysAnnConfigId, Integer sysAnnoId, Collection<Integer> sysUserIds, AnnPriorityType annPriorityType) {
+        sendAnnouncement(sysAnnConfigId, sysAnnoId, null, null, null, sysUserIds, annPriorityType);
     }
+
+
 
     /**
      * 功能: 发送消息
@@ -146,9 +158,14 @@ public class SysAnnouncementSenderServiceImpl implements SysAnnouncementSenderSe
         final Integer emailNotice = sysAnnouncementConfig.getEmailNotice();
         final Integer phoneNotice = sysAnnouncementConfig.getPhoneNotice();
         final Integer wechatNotice = sysAnnouncementConfig.getWechatNotice();
+        final Integer dingTalkNotice = sysAnnouncementConfig.getDingTalkNotice();
+
+
+
+
 
         //如果需要发送系统通知 并且有传消息通知id
-        if ((sysNotice == NoticeType.NOTICE.getType() || (sysAnnConfigId <= 3 && sysUserIds == null)) && sysAnnoId == null) {
+        if ((sysNotice == NoticeType.NOTICE.getType() || (sysUserIds == null)) && sysAnnoId == null) {
             final AddAnnouncementDTO announcementDTO = new AddAnnouncementDTO();
             announcementDTO.setAnnTitle(title);
             announcementDTO.setAnnContent(content);
@@ -168,14 +185,41 @@ public class SysAnnouncementSenderServiceImpl implements SysAnnouncementSenderSe
 
             announcementDTO.setAnnConfigId(sysAnnConfigId);
             //默认走这边的发送人都是系统
-            sysAnnouncementService.addAnnouncement(announcementDTO, -1, annCategory);
+            sysAnnoId = sysAnnouncementService.addAnnouncement(announcementDTO, -1, annCategory);
             return;
         }
 
         if (sysAnnoId != null) {
-            title = sysAnnouncement.getAnnTitle();
-            abstractContent = sysAnnouncement.getAnnMsgAbstract();
-            content = sysAnnouncement.getAnnContent();
+            SysAnnouncement sysAnnouncement1 = sysAnnouncementService.getSysAnnouncement(sysAnnoId);
+            title = sysAnnouncement1.getAnnTitle();
+            abstractContent = sysAnnouncement1.getAnnMsgAbstract();
+            content = sysAnnouncement1.getAnnContent();
+            sysUserIds = JSONArray.parseArray(sysAnnouncement1.getAnnUserIds()).toJavaList(Integer.class);
+        }
+
+        if (sysAnnoId == null && sysUserIds ==null){
+            List<Integer> userIDLIst = JSONArray.parseArray(sysAnnouncementConfig.getAnnUserIds()).toJavaList(Integer.class);
+            List<Integer> deptIDLIst = JSONArray.parseArray(sysAnnouncementConfig.getAnnDeptIds()).toJavaList(Integer.class);
+            sysUserIds = setUserIds(sysAnnouncementConfig.getAnnTarget(), userIDLIst, deptIDLIst);
+        }
+
+
+        log.info("sysAnnouncementConfig = {}",sysAnnouncementConfig);
+
+        log.info("dingTalkNotice = {}",dingTalkNotice);
+        //钉钉机器人
+        if (dingTalkNotice == NoticeType.NOTICE.getType()) {
+
+            final SendDingTalkDTO sendDingTalkDTO = new SendDingTalkDTO();
+            sendDingTalkDTO.setAnnCategory(annCategory);
+            sendDingTalkDTO.setTitle(title);
+            sendDingTalkDTO.setAbstractContent(abstractContent);
+            sendDingTalkDTO.setContent(content);
+            sendDingTalkDTO.setSysAnnConfigId(sysAnnouncementConfig.getId());
+            String jsonStr1 = JSONUtil.toJsonStr(sendDingTalkDTO);
+            log.info("钉钉推送已经开启，本条消息推送{}",jsonStr1);
+            mqTransactionalmessageSender.insertMqTransactionalMessage(SysAnnouncementSendListenter.SEND_DINGTALK, jsonStr1);
+//            dingTalkRobotService.senDdingTalk(sendDingTalkDTO);
         }
 
 
@@ -197,6 +241,8 @@ public class SysAnnouncementSenderServiceImpl implements SysAnnouncementSenderSe
                 //发送系统通知
                 if (sysNotice == NoticeType.NOTICE.getType()) {
                     final SendSysAnnouncementDTO sendSysAnnouncementDTO = new SendSysAnnouncementDTO();
+
+
                     sendSysAnnouncementDTO.setSysAnnoId(sysAnnoId);
                     sendSysAnnouncementDTO.setSysUserId(sysUserId);
                     //系统通知要为同步
@@ -215,8 +261,31 @@ public class SysAnnouncementSenderServiceImpl implements SysAnnouncementSenderSe
                 if (wechatNotice == NoticeType.NOTICE.getType()) {
                     mqTransactionalmessageSender.insertMqTransactionalMessage(SysAnnouncementSendListenter.SEND_WECHAT, jsonStr);
                 }
+
+
+
             }
         }
+    }
+
+
+    /**
+     * 功能: 获取要保存的用户id
+     * 作者: richenli
+     * 日期: 2022/3/14 11:07
+     * 版本: 1.0
+     */
+    private Collection<Integer> setUserIds(int annTargetType, Collection<Integer> sysUserIdList, Collection<Integer> sysDeptIdList) {
+        if (annTargetType == AnnTargetType.ALL_USER.getType()) {
+            sysUserIdList = sysUserMapper.findId();
+        } else if (annTargetType == AnnTargetType.DESIGNATED_DEPARTMENT.getType()) {
+            sysUserIdList = sysUserDepartmentMapper.findSysUserIdBySysDepartmentIdIn(sysDeptIdList);
+        }
+
+//        sysAnnouncement.setAnnTarget(annTargetType);
+//        sysAnnouncement.setAnnDeptIds(JSONUtil.toJsonStr(sysDeptIdList));
+//        sysAnnouncement.setAnnUserIds(JSONUtil.toJsonStr(sysUserIdList));
+        return sysUserIdList;
     }
 
 
@@ -270,7 +339,7 @@ public class SysAnnouncementSenderServiceImpl implements SysAnnouncementSenderSe
             }
         }
 
-        
+
         //websocket 通知前端
         ThreadPoolUtil.execute(() -> {
             applicationContext.publishEvent(new AnnouncementWindowsUnReadNumEvent(noticUserIdList));

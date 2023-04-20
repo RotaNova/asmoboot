@@ -1,6 +1,7 @@
 package com.rotanava.boot.system;
 
 import com.alibaba.fastjson.JSONObject;
+import lombok.extern.log4j.Log4j2;
 import org.apache.dubbo.config.spring.context.annotation.DubboComponentScan;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.mybatis.spring.annotation.MapperScan;
@@ -12,6 +13,9 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
 /**
  * @description: 基础系统启动类
@@ -32,7 +36,7 @@ public class SystemApplication {
 
 
     public static void main(String[] args) {
-
+        System.out.println("agrs=  "+ JSONObject.toJSONString(args));
         ConfigurableApplicationContext run = SpringApplication.run(SystemApplication.class, args);
     }
 

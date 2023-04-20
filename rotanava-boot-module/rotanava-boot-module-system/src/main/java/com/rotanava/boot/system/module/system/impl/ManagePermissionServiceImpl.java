@@ -316,6 +316,7 @@ public class ManagePermissionServiceImpl implements ManagePermissionService {
         sysApiPermissionVO.setSysApiId(sysPageApi.getSysApiId());
         sysApiPermissionVO.setSysPageId(sysPageApi.getSysPageId());
         sysApiPermissionVO.setPageTitle(sysPagePermission.getPageTitle());
+        sysApiPermissionVO.setSysPageModuleTypeId(sysPagePermission.getSysPageModuleTypeId());
 
 
         BaseVO<SysApiPermissionVO> sysApiPermissionBaseVO = new BaseVO<>();
@@ -387,8 +388,15 @@ public class ManagePermissionServiceImpl implements ManagePermissionService {
 
     @Override
     public String getPageJson(Integer sysPageId) {
+
+        LoginUser loginUser = (LoginUser) SecurityUtils.getSubject().getPrincipal();
         //按页面id查询
-        SysPagePermission sysPagePermission = sysPagePermissionMapper.selectById(sysPageId);
+        SysPagePermission sysPagePermission ;
+        if (loginUser.getIsAdmin()) {
+            sysPagePermission = sysPagePermissionMapper.findAllBySysUserId(sysPageId);
+        } else {
+            sysPagePermission = sysPagePermissionMapper.findBySysUserIdAndSysPageId(loginUser.getId(), sysPageId);
+        }
         if (sysPagePermission == null) {
             throw new CommonException(AuthErrorCode.AUTH_ERROR_15);
         }

@@ -5,6 +5,7 @@ import com.rotanava.boot.system.api.ShiroPermissionService;
 import com.rotanava.boot.system.api.module.system.dto.CheckUrlResPerDTO;
 import com.rotanava.framework.code.RetData;
 import com.rotanava.framework.common.constant.CommonConstant;
+import com.rotanava.framework.config.mybatis.query.QueryGenerator;
 import com.rotanava.framework.config.shiro.JwtToken;
 import com.rotanava.framework.config.shiro.UrlPermission;
 import com.rotanava.framework.exception.code.AuthErrorCode;
@@ -42,6 +43,7 @@ public class ShiroPermissionServiceImpl implements ShiroPermissionService {
     @Override
     @SneakyThrows
     public RetData<Void> checkUrlResPerByToken(CheckUrlResPerDTO checkUrlResPerDTO) {
+
         try {
             ThreadContext.bind(securityManager);
             Subject subject = SecurityUtils.getSubject();

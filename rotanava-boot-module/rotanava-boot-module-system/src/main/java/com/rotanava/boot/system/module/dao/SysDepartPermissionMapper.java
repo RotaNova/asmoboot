@@ -27,6 +27,8 @@ public interface SysDepartPermissionMapper extends BaseMapper<SysDepartPermissio
 
     int deleteByPagePermissionIdInAndDepartId(@Param("pagePermissionIdCollection")Collection<Integer> pagePermissionIdCollection,@Param("departId")Integer departId);
 
+    int deleteByDepartIdAndPagePermissionIdIn(@Param("departId")Integer departId,@Param("pagePermissionIdCollection")Collection<Integer> pagePermissionIdCollection);
+
 
 
 }

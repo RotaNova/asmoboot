@@ -17,14 +17,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dingtalk.api.response.OapiSnsGetuserinfoBycodeResponse;
 import com.dingtalk.api.response.OapiUserGetbyunionidResponse;
 import com.google.common.collect.Lists;
-import com.rotanava.boot.system.api.DeptRoleManagementService;
-import com.rotanava.boot.system.api.ManageSecurityService;
-import com.rotanava.boot.system.api.SetAccountService;
-import com.rotanava.boot.system.api.SysAnnouncementSenderService;
-import com.rotanava.boot.system.api.SysDepartmentService;
-import com.rotanava.boot.system.api.SysDingDingConfigService;
-import com.rotanava.boot.system.api.SysServiceSettingService;
-import com.rotanava.boot.system.api.SysUserService;
+import com.rotanava.boot.system.api.*;
 import com.rotanava.boot.system.api.constant.enums.UserIsOnlineStatus;
 import com.rotanava.boot.system.api.module.constant.AnnPriorityType;
 import com.rotanava.boot.system.api.module.constant.BannerFrequency;
@@ -74,6 +67,7 @@ import com.rotanava.boot.system.api.module.system.dto.SecondaryVerificationLogin
 import com.rotanava.boot.system.api.module.system.dto.UpdateSysUserDTO;
 import com.rotanava.boot.system.api.module.system.dto.UserAccountNameDTO;
 import com.rotanava.boot.system.api.module.system.dto.VerifyPhoneDTO;
+import com.rotanava.boot.system.api.module.system.dto.ldap.LdapTestLoginDTO;
 import com.rotanava.boot.system.api.module.system.vo.AccessInfoVO;
 import com.rotanava.boot.system.api.module.system.vo.AccessTokenVO;
 import com.rotanava.boot.system.api.module.system.vo.AccountSafeSettingVO;
@@ -99,8 +93,10 @@ import com.rotanava.boot.system.module.dao.SysUserMapper;
 import com.rotanava.boot.system.module.dao.SysUserRoleMapper;
 import com.rotanava.boot.system.module.dao.UserLoginInfoMapper;
 import com.rotanava.boot.system.module.system.impl.SysDingDingConfigServiceImpl;
+import com.rotanava.boot.system.module.system.impl.ldap.LDAPServiceImpl;
 import com.rotanava.boot.system.module.system.mq.MqTransactionalMessageSender;
 import com.rotanava.boot.system.module.system.mq.SysUserListenter;
+import com.rotanava.boot.system.util.IPRegionUtil;
 import com.rotanava.dingding.sdk.AuthSDK;
 import com.rotanava.dingding.sdk.UserSDK;
 import com.rotanava.dingding.service.DingTalkService;
@@ -124,16 +120,8 @@ import com.rotanava.framework.model.BaseDTO;
 import com.rotanava.framework.model.BaseVO;
 import com.rotanava.framework.model.LoginUser;
 import com.rotanava.framework.model.bo.ManageSecurity;
-import com.rotanava.framework.util.AESUtil;
-import com.rotanava.framework.util.BaseUtil;
-import com.rotanava.framework.util.BuildUtil;
-import com.rotanava.framework.util.ImageUtil;
-import com.rotanava.framework.util.JwtUtil;
-import com.rotanava.framework.util.MD5Tools;
+import com.rotanava.framework.util.*;
 import com.rotanava.boot.system.util.MailUtil;
-import com.rotanava.framework.util.PageUtils;
-import com.rotanava.framework.util.PasswordUtil;
-import com.rotanava.framework.util.RedisUtil;
 import com.rotanava.boot.system.util.sms.SendMsgUtil;
 import lombok.extern.log4j.Log4j2;
 import nl.bitwalker.useragentutils.Browser;
@@ -279,6 +267,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Lazy
     private GlobalClass globalClass;
 
+    @Autowired
+    @Lazy
+    LDAPService ldapService;
+
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -308,10 +300,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUser.setUserBirthday(Optional.ofNullable(addSysUserDTO.getUserBirthday()).map(Date::new).orElse(null));
         sysUser.setUserStatus(UserStatus.INACTIVATED.getStatus());
         sysUser.setUserIsOnline(UserIsOnlineStatus.OFFLINE.getStatus());
-        sysUser.setUserStatus(UserStatus.INACTIVATED.getStatus());
         sysUser.setUserDeleteStatus(UserDeleteStatus.NOT_DELETED.getStatus());
         sysUser.setCreateBy(userId);
         sysUser.setCreateTime(new Date());
+        if (addSysUserDTO.getUserStatus()!=null){
+            sysUser.setUserStatus(addSysUserDTO.getUserStatus());
+        }
 
         //头像
         if (photoBytes != null) {
@@ -325,8 +319,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUserMapper.insert(sysUser);
         final Integer sysUserId = sysUser.getId();
 
-        //设置有效期
-        setStatus(sysUser, true);
+        if (!sysUser.getUserCode().contains(LDAPServiceImpl.LDAP_PRE_CODE)) {
+            //设置有效期
+            setStatus(sysUser, true);
+        }
 
         //用户所属部门
         setResponsibleDeptList(sysUserId, DeptManageStatus.fromValue(addSysUserDTO.getUserSysrole()), addSysUserDTO.getSysDepartmentIdList(), addSysUserDTO.getResponsibleDeptList());
@@ -510,6 +506,15 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      * 版本: 1.0
      */
     private void setResponsibleDeptList(int sysUserId, DeptManageStatus deptManageStatus, Collection<Integer> deptList, Collection<Integer> responsibleDeptList) {
+
+        if (deptList == null) {
+            deptList = Lists.newArrayList();
+        }
+
+        if (responsibleDeptList == null) {
+            responsibleDeptList = Lists.newArrayList();
+        }
+
 
         if (deptManageStatus == DeptManageStatus.ADMINISTRATOR && !deptList.containsAll(responsibleDeptList)) {
             throw new CommonException(ParamErrorCode.PARAM_ERROR_40);
@@ -864,6 +869,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public UserLoginVO passWordLogin(PassWordLoginDTO passWordLoginDTO, String header, String ipAddr) {
+
         //按账号查询
         SysUser sysUser = sysUserMapper.findByUserAccountNameAndUserDeleteStatus(passWordLoginDTO.getUserAccountName(), UserDeleteStatus.NOT_DELETED.getStatus());
 
@@ -939,15 +945,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                             //清空用户的缓存信息（包括部门信息），例如sys:cache:user::<username>
                             redisUtil.del(String.format("%s%s", CommonConstant.PREFIX_ONLINE_USER_INFO, sysUser.getUserAccountName()));
 
-                            SysOnlineUser sysOnlineUser = sysOnlineUserMapper.findBySysUserToken(token);
-                            sysOnlineUserMapper.deleteBySysUserToken(token);
-                            if (sysOnlineUser != null) {
-                                UserLoginInfo userLoginInfo = new UserLoginInfo();
-                                userLoginInfo.setId(sysOnlineUser.getUserLoginInfoId());
-                                userLoginInfo.setOfflineTime(new Date());
-                                userLoginInfoMapper.updateById(userLoginInfo);
-                            }
                         }
+
+
                     } else {
                         if (!StringUtils.isEmpty(userToken)) {
                             redisUtil.del(prefix);
@@ -957,7 +957,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 //清空不活跃用户Token缓存
                 redisUtil.sRemove(CommonConstant.PREFIX_ACTIVE_USER_TOKEN, token);
             }
-
+            SysOnlineUser sysOnlineUser = sysOnlineUserMapper.findBySysUserToken(token);
+            if (sysOnlineUser != null) {
+                UserLoginInfo userLoginInfo = new UserLoginInfo();
+                userLoginInfo.setId(sysOnlineUser.getUserLoginInfoId());
+                userLoginInfo.setOfflineTime(new Date());
+                userLoginInfoMapper.updateById(userLoginInfo);
+            }
+            sysOnlineUserMapper.deleteBySysUserToken(token);
         } else {
             throw new CommonException(AuthErrorCode.AUTH_ERROR_00);
         }
@@ -1298,8 +1305,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if (BannerOption.TURN_ON.getOption().equals((platformSetting.getBannerOption()))) {
             if (BannerFrequency.FIRST_LOGIN.getFrequency().equals(platformSetting.getBannerFrequency())) {
                 List<UserLoginInfo> userLoginInfos = userLoginInfoMapper.findByLoginUserIdAndLoginTimeBetweenEqual(loginUser.getId(), DateUtil.beginOfDay(new Date()), DateUtil.endOfDay(new Date()));
-                if (!CollectionUtils.isEmpty(userLoginInfos)) {
-                    userLoginVO.setBannerShowOption(BannerOption.TURN_ON.getOption());
+                if (userLoginInfos.size() > 1) {
+                    userLoginVO.setBannerShowOption(BannerOption.SHUT_DOWN.getOption());
                 }
             }
         }
@@ -1528,7 +1535,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
 
         userLoginInfo.setId(BaseUtil.getSnowflakeId());
+
         userLoginInfo.setLoginIp(ipAddr);
+        if (StringUtil.isNullOrEmpty(ipAddr)){
+            userLoginInfo.setLoginIp("未知");
+        }
         userLoginInfo.setLoginBrowser(browserName);
         userLoginInfo.setLoginOs(system);
         userLoginInfo.setLoginStatus(loginStatus);
@@ -1638,8 +1649,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             throw new CommonException(errorCode);
         }
 
+
         //判断过期时间
-        if (System.currentTimeMillis() > sysUser.getUserValidTime().getTime()) {
+        if (System.currentTimeMillis() > sysUser.getUserValidTime().getTime()&&sysUser.getUserSysrole()!=1) {
             saveUserLoginInfo(header, ipAddr, userLoginInfo, LoginStatus.FAILURE.getStatus(), LoginAccessType.ACCOUNT_PASSWORD.getType(), AuthErrorCode.AUTH_ERROR_12.getMsg());
             throw new CommonException(AuthErrorCode.AUTH_ERROR_12);
         }
@@ -1683,6 +1695,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         //修改用户在线状态
         sysUserMapper.updateById(updateSysUser);
         //保存用户登录日志
+        userLoginInfo.setLoginLocation(IPRegionUtil.getRegionByIp(ipAddr));
         saveUserLoginInfo(header, ipAddr, userLoginInfo, LoginStatus.SUCCESS.getStatus(), loginAccessType, "登录成功");
     }
 
@@ -1764,7 +1777,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             String key = stringRedisTemplate.opsForValue().get(prefixLockingUserFrequency);
             int locking = key == null ? 0 : Convert.toInt(key);
             //判断密码
-            if (!passWord.equals(sysUser.getUserPassword())) {
+            if (!userLoginVerifyPassWord(passWordLoginDTO,sysUser)) {
 
                 if (locking < manageSecurity.getAccountLockoutStrategyFrequency()) {
                     stringRedisTemplate.opsForValue().set(prefixLockingUserFrequency, Convert.toStr(++locking), 60, TimeUnit.MINUTES);
@@ -1789,12 +1802,29 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
         } else {
             //判断密码
-            if (!passWord.equals(sysUser.getUserPassword())) {
+            if (!userLoginVerifyPassWord(passWordLoginDTO,sysUser)) {
                 saveUserLoginInfo(header, ipAddr, userLoginInfo, LoginStatus.FAILURE.getStatus(), LoginAccessType.ACCOUNT_PASSWORD.getType(), AuthErrorCode.AUTH_ERROR_11.getMsg());
                 throw new CommonException(AuthErrorCode.AUTH_ERROR_11);
             }
         }
 
+
+    }
+
+    private boolean userLoginVerifyPassWord(PassWordLoginDTO passWordLoginDTO, SysUser sysUser) {
+        //获取密码
+
+
+        if (sysUser.getUserCode().contains(LDAPServiceImpl.LDAP_PRE_CODE)) {
+            String passWord = passWordLoginDTO.getUserPassword();
+            LdapTestLoginDTO ldapTestLoginDTO = new LdapTestLoginDTO();
+            ldapTestLoginDTO.setPassword(passWord);
+            ldapTestLoginDTO.setUserName(sysUser.getUserAccountName());
+            return ldapService.LDAPLogin(ldapTestLoginDTO);
+        } else {
+            String passWord = PasswordUtil.encrypt(passWordLoginDTO.getUserAccountName(), passWordLoginDTO.getUserPassword(), sysUser.getUserPasswdSalt());
+            return passWord.equals(sysUser.getUserPassword());
+        }
 
     }
 

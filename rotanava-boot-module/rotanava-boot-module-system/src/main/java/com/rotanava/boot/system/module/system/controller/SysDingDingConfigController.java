@@ -75,8 +75,9 @@ public class SysDingDingConfigController {
     @AdviceResponseBody
     @GetMapping("/syncDingDingUserData")
     public RetData syncDingDingUserData(@NotBlank String uid) throws Exception {
+        Integer currentReqUserId = SysUtil.getCurrentReqUserId();
         ThreadPoolUtil.execute(() -> {
-            sysDingDingConfigService.syncDingDingUserData(uid, SysUtil.getCurrentReqUserId());
+            sysDingDingConfigService.syncDingDingUserData(uid,currentReqUserId );
         });
         return RetData.ok();
     }

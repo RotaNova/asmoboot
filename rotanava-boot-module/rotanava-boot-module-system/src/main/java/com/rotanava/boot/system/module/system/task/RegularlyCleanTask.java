@@ -3,29 +3,19 @@ package com.rotanava.boot.system.module.system.task;
 
 import com.rotanava.boot.system.api.ManageSecurityService;
 import com.rotanava.boot.system.api.SysUserService;
-import com.rotanava.boot.system.api.module.system.bo.SysOnlineUser;
 import com.rotanava.boot.system.module.dao.SysOnlineUserMapper;
-import com.rotanava.boot.system.module.dao.UserLoginInfoMapper;
-import com.rotanava.framework.common.aspect.annotation.AutoLog;
-import com.rotanava.framework.common.constant.enums.OperateTypeEnum;
 import com.rotanava.framework.model.bo.ManageSecurity;
-import com.rotanava.framework.util.JwtUtil;
 import com.rotanava.framework.util.RedisUtil;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.annotation.XxlJob;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
-import java.time.Duration;
-import java.util.Collection;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 
 /**
@@ -45,16 +35,24 @@ public class RegularlyCleanTask {
     @Autowired
     private ManageSecurityService manageSecurityService;
 
+    @Autowired
+    private SysOnlineUserMapper sysOnlineUserMapper;
 
 
-//    @Scheduled(cron = "0 */1 * * * ? ")
+    //    @Scheduled(cron = "0 */1 * * * ? ")
     @XxlJob(value = "regularlyCleanUpInactiveUsers")
     public ReturnT<String> regularlyCleanUpInactiveUsers(String data) {
 
         ManageSecurity manageSecurity = manageSecurityService.getManageSecurity();
 
+        long min = LocalDateTime.now().minusMinutes(manageSecurity.getSingleLoginValidTime()).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+        long max = LocalDateTime.now().plusMinutes(10).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
         //获取过期token列表,并清除 在线token
-        redisUtil.getExpired(Duration.ofMinutes(manageSecurity.getSingleLoginValidTime())).forEach(sysUserService::logout);
+        Set<String> onlineUserTokens = redisUtil.getExpired(min, max);
+        List<String> tokens = sysOnlineUserMapper.findSysUserToken();
+        tokens.removeAll(onlineUserTokens);
+
+        tokens.forEach(sysUserService::logout);
         return ReturnT.SUCCESS;
 
     }

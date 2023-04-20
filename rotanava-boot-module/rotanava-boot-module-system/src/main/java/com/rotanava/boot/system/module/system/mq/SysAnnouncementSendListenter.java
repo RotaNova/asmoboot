@@ -2,10 +2,12 @@ package com.rotanava.boot.system.module.system.mq;
 
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.rotanava.boot.system.api.DingTalkRobotService;
 import com.rotanava.boot.system.api.SysAnnouncementSenderService;
 import com.rotanava.boot.system.api.SysUserAnnouncementService;
 import com.rotanava.boot.system.api.module.constant.AnnReadFlag;
 import com.rotanava.boot.system.api.module.system.dto.SendAnnouncementDTO;
+import com.rotanava.boot.system.api.module.system.dto.SendDingTalkDTO;
 import com.rotanava.boot.system.api.module.system.event.AnnouncementWindowsUnReadNumEvent;
 import com.rotanava.boot.system.api.module.system.vo.UserAnnouncementItemVO;
 import com.rotanava.framework.model.BaseDTO;
@@ -33,6 +35,7 @@ public class SysAnnouncementSendListenter {
     public static final String SEND_EMAIL = "sendEmail";
     public static final String SEND_PHONE = "sendPhone";
     public static final String SEND_WECHAT = "sendWechat";
+    public static final String SEND_DINGTALK = "senDdingTalk";
 
     @Autowired
     private SysAnnouncementSenderService sysAnnouncementSenderService;
@@ -43,6 +46,9 @@ public class SysAnnouncementSendListenter {
     @Autowired
     private PcMessageUtil pcMessageUtil;
 
+    @Autowired
+    private DingTalkRobotService dingTalkRobotService;
+
     /**
      * 功能: 监听是否需要发送websocket事件
      * 作者: zjt
@@ -51,16 +57,17 @@ public class SysAnnouncementSendListenter {
      */
     @EventListener
     public void handleAnnouncementWindowsUnReadNumEvent(AnnouncementWindowsUnReadNumEvent announcementWindowsUnReadNumEvent) {
-        for (Integer sysUserId : announcementWindowsUnReadNumEvent.getSysUserIdList()) {
-            //websocket 通知前端
-            //计算未读的总条数
-            final BaseDTO baseDTO = new BaseDTO();
-            baseDTO.setPageNum(1);
-            baseDTO.setPageSize(1);
-            final IPage<UserAnnouncementItemVO> userAnnouncementItemPage =
-                    sysUserAnnouncementService.getUserAnnouncementItemPage(baseDTO, sysUserId, null, AnnReadFlag.UNREAD.getType());
-            pcMessageUtil.sendMessageByUserId(sysUserId, "announcementWindowsUnReadNum", userAnnouncementItemPage.getTotal());
-        }
+//        for (Integer sysUserId : announcementWindowsUnReadNumEvent.getSysUserIdList()) {
+//
+//            //websocket 通知前端
+//            //计算未读的总条数
+//            final BaseDTO baseDTO = new BaseDTO();
+//            baseDTO.setPageNum(1);
+//            baseDTO.setPageSize(1);
+//            final IPage<UserAnnouncementItemVO> userAnnouncementItemPage =
+//                    sysUserAnnouncementService.getUserAnnouncementItemPage(baseDTO, sysUserId, null, AnnReadFlag.UNREAD.getType());
+//            pcMessageUtil.sendMessageByUserId(sysUserId, "announcementWindowsUnReadNum", userAnnouncementItemPage.getTotal());
+//        }
     }
 
     /**
@@ -121,5 +128,23 @@ public class SysAnnouncementSendListenter {
     public void sendWechat(String message) {
         final SendAnnouncementDTO sendAnnouncementDTO = JSONUtil.toBean(message, SendAnnouncementDTO.class);
         sysAnnouncementSenderService.sendWechat(sendAnnouncementDTO);
+    }
+
+    /**
+     * 发送钉钉
+     *
+     * @param message 消息
+     * @return
+     * @author weiqiangmiao
+     * @date 2022/03/23
+     * @update [序号][日期YYYY-MM-DD][更改人姓名][变更描述]
+     */
+    @RabbitListener(queuesToDeclare = @Queue(SEND_DINGTALK))
+    public void senDdingTalk(String message) {
+        final SendDingTalkDTO sendDingTalkDTO = JSONUtil.toBean(message, SendDingTalkDTO.class);
+        log.info("收到钉钉推送消息{}",sendDingTalkDTO);
+        dingTalkRobotService.senDdingTalk(sendDingTalkDTO);
+
+
     }
 }

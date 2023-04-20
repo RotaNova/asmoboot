@@ -1,7 +1,8 @@
+# 项目相关配置
 minio:
-  accessKey: admin
-  endpoint: http://127.0.0.1:9000
-  secretKey: admin123456
+  accessKey: # minioAccessKey
+  endpoint: # minio地址
+  secretKey: # minioSecretKey
 rotanava:
   uploadType: minio
   xxljob:
@@ -10,9 +11,10 @@ rotanava:
     #### xxl-job admin address list：调度中心部署跟地址：如调度中心集群部署存在多个地址则用逗号分隔。执行器将会使用该地址进行"执行器心跳注册"和"任务结果回调"。
     adminAddresses: http://127.0.0.1:9081/xxl-job-admin
     ### xxl-job executor address：执行器"AppName"和地址信息配置：AppName执行器心跳注册分组依据；地址信息用于"调度中心请求并触发任务"和"执行器注册"
-    #。执行器默认端口为9999，执行器IP默认为空表示自动获取IP，多网卡时可手动设置指定IP，该IP不会绑定Host仅作为通讯实用。单机部署多个执行器时，注意要配置不同执行器端口；
+    #执行器IP默认为空表示自动获取IP，多网卡时可手动设置指定IP，该IP不会绑定Host仅作为通讯实用。单机部署多个执行器时，注意要配置不同执行器端口；
     appname: ${spring.application.name}
     ip: 127.0.0.1
+    # 执行端口
     port: 30007
     ### xxl-job, access token：执行器通讯TOKEN，非空时启用
     accessToken:
@@ -36,12 +38,15 @@ spring:
       test-on-return: true
       test-while-idle: true
     filters: stat,wall,log4j
-    password: password
+    password: # 数据库密码
     type: com.alibaba.druid.pool.DruidDataSource
+    # 数据连接地址
     url: jdbc:mysql://127.0.0.1:3306/rn_base_sys?serverTimezone=GMT%2B8&useSSL=false&allowPublicKeyRetrieval=true&allowMultiQueries=true&useUnicode=true&characterEncoding=utf8
-    username: root
+    username: # 数据库账号
   mail:
+    # 邮件服务器地址
     host: mail_host
+    # 邮件服务器密码
     password: password
     properties:
       mail:
@@ -50,7 +55,9 @@ spring:
           starttls:
             enable: true
             required: true
+    # 邮件服务器账号
     username: mail_username
+  # redis配置
   redis:
     database: 1
     host: 127.0.0.1
@@ -60,13 +67,20 @@ spring:
         max-idle: 20
         max-wait: 3000
         min-idle: 2
+    # redis密码
     password: password
+    # redis 端口
     port: 6379
     timeout: 7000
+  # rabbitmq配置
   rabbitmq:
+    # rabbitmq地址
     host: 127.0.0.1
+    # rabbitmq端口
     port: 5672
+    # rabbitmq账号
     username: username
+    # rabbitmq密码
     password: password
     virtual-host: /
     publisher-confirm-type: correlated
@@ -91,6 +105,7 @@ dubbo:
     #解决自定义异常丢失
     filter: -exception
   registry:
+    # zookeeper注册地址
     address: zookeeper://127.0.0.1:2181
     check: false
   application:
@@ -98,6 +113,7 @@ dubbo:
 eureka:
   client:
     serviceUrl:
+      # eureka注册地址
       defaultZone: http://127.0.0.1:8887/eureka/
   instance:
     prefer-ip-address: true

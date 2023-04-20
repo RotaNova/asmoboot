@@ -39,50 +39,51 @@ public class SystemBackupTask {
     SysServiceSettingService sysServiceSettingService;
 
 
-
     @Autowired
     private FileUploadUtil fileUploadUtil;
 
-    private static final Integer BEGIN =1;
-    private static final Integer CLOSE =2;
+    private static final Integer BEGIN = 1;
+    private static final Integer CLOSE = 2;
 
     @XxlJob(value = "sysBackupTask")
-    public ReturnT<String> sysBackupTask(String data){
+    public ReturnT<String> sysBackupTask(String data) {
 
         //获取系统备份配置信息
         SystemBackupDTO systemBackupsConfig = sysServiceSettingService.getSystemBackupsConfig();
-        if (CLOSE==systemBackupsConfig.getScheduledBackUpOption()){
+        if (CLOSE == systemBackupsConfig.getScheduledBackUpOption()) {
             return ReturnT.SUCCESS;
         }
         QueryWrapper<SysBackup> queryWrapper = new QueryWrapper<>();
         Date date = DateUtil.subtractDays(new Date(), systemBackupsConfig.getBackupSaveDays());
 
         queryWrapper.le("create_time", Date8Util.format(date));
-        queryWrapper.eq("service_type",1);
+        queryWrapper.eq("service_type", 1);
         //删除大于保存天数的备份文件和数据信息
         List<SysBackup> list = sysBackUpService.list(queryWrapper);
-        if (list.size()>0){
+        if (list.size() > 0) {
             List<Integer> ids = new ArrayList<>();
             for (SysBackup sysBackup : list) {
                 ids.add(sysBackup.getId());
-                fileUploadUtil.rmObject(sysBackup.getBucketName(),sysBackup.getObjectName());
+                fileUploadUtil.rmObject(sysBackup.getBucketName(), sysBackup.getObjectName());
             }
             sysBackUpService.removeByIds(ids);
         }
 
 
         queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("service_type",1);
+        queryWrapper.eq("service_type", 1);
+        queryWrapper.orderByDesc("id");
         IPage<SysBackup> page = new Page<>(1, 1);
         IPage<SysBackup> pageList = sysBackUpService.page(page, queryWrapper);
-        if (pageList.getRecords().size()<=0) {
+        if (pageList.getRecords().size() <= 0) {
             //直接进行备份
             sysBackUpService.sysBackUp(sysBackUpService.autoBackupType, sysBackUpService.sysBackUpType);
-        }else {
+        } else {
             SysBackup sysBackup = pageList.getRecords().get(0);
-            Integer day = DateUtil.daysBetween(new Date(),sysBackup.getCreateTime());
+            Integer day = DateUtil.daysBetween(sysBackup.getCreateTime(), new Date());
+            log.info("距离上次相差{}天，策略配置{}天", day, systemBackupsConfig.getBackupFrequency());
             //判断是否需要备份
-            if (day>=systemBackupsConfig.getBackupFrequency()){
+            if (day >= systemBackupsConfig.getBackupFrequency()) {
                 sysBackUpService.sysBackUp(sysBackUpService.autoBackupType, sysBackUpService.sysBackUpType);
             }
         }

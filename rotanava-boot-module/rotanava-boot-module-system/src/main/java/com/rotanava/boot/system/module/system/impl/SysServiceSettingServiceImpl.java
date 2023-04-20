@@ -1,18 +1,27 @@
 package com.rotanava.boot.system.module.system.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.map.MapUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.google.common.collect.Lists;
 import com.rotanava.boot.system.api.SysPlatformDeployService;
 import com.rotanava.boot.system.api.SysServiceSettingService;
+import com.rotanava.boot.system.api.module.constant.MqttEnable;
+import com.rotanava.boot.system.api.module.constant.MqttSetEnum;
+import com.rotanava.boot.system.api.module.constant.SysServiceType;
+import com.rotanava.boot.system.api.module.system.bean.MqttSet;
 import com.rotanava.boot.system.api.module.system.bo.SysServiceSetting;
 import com.rotanava.boot.system.api.module.system.bo.SysTimingTask;
+import com.rotanava.boot.system.api.module.system.dto.MqttSetDTO;
 import com.rotanava.boot.system.api.module.system.dto.PlatformSettingDTO;
 import com.rotanava.boot.system.api.module.system.dto.system.LogBackupDTO;
 import com.rotanava.boot.system.api.module.system.dto.system.NtpSettingDTO;
 import com.rotanava.boot.system.api.module.system.dto.system.SystemBackupDTO;
+import com.rotanava.boot.system.api.module.system.vo.MqttSetVO;
 import com.rotanava.boot.system.api.module.system.vo.PlatformSettingVO;
 import com.rotanava.boot.system.api.module.system.vo.SysTimingTaskVO;
 import com.rotanava.boot.system.module.dao.SysServiceSettingMapper;
@@ -24,21 +33,16 @@ import com.rotanava.framework.common.oss.model.UploadResultBean;
 import com.rotanava.framework.config.mybatis.query.QueryGenerator;
 import com.rotanava.framework.model.BaseDTO;
 import com.rotanava.framework.model.BaseVO;
-import com.rotanava.framework.util.BaseUtil;
-import com.rotanava.framework.util.BuildUtil;
-import com.rotanava.framework.util.Date8Util;
-import com.rotanava.framework.util.DateUtil;
-import com.rotanava.framework.util.PageUtils;
-import com.rotanava.framework.util.StringUtil;
+import com.rotanava.framework.util.*;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @description:
@@ -46,6 +50,7 @@ import java.util.Map;
  * @create: 2021-03-23 14:59
  **/
 @Service
+@DubboService
 public class SysServiceSettingServiceImpl extends ServiceImpl<SysServiceSettingMapper, SysServiceSetting> implements SysServiceSettingService {
 
     @Autowired
@@ -56,12 +61,16 @@ public class SysServiceSettingServiceImpl extends ServiceImpl<SysServiceSettingM
     private MqTransactionalMessageSender mqTransactionalmessageSender;
 
     @Autowired
+    @Lazy
     SysPlatformDeployService sysPlatformDeployService;
+
+    @Autowired
+    private RedisUtil redisUtil;
 
     private static final Integer defaultType = 1;
     private static final Integer custiomType = 2;
 
-    private static final String settingBucket = "rn-common-resources";
+    private static final String settingBucket = "rn-common-resources" ;
 
 
     private String getConfigValueByOptionType(Integer type, SysServiceSetting sysServiceSetting) {
@@ -75,17 +84,17 @@ public class SysServiceSettingServiceImpl extends ServiceImpl<SysServiceSettingM
     }
 
     @Override
-    public String getSiteName(){
+    public String getSiteName() {
         QueryWrapper<SysServiceSetting> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("sys_service_type", 2);
         List<SysServiceSetting> list = list(queryWrapper);
 
         for (SysServiceSetting sysServiceSetting : list) {
-            if ("site_name".equals(sysServiceSetting.getSysServiceCode())){
+            if ("site_name".equals(sysServiceSetting.getSysServiceCode())) {
                 return sysServiceSetting.getSysServiceValue();
             }
         }
-        return "新航物联网开源版本";
+        return "新航物联网开源版本" ;
     }
 
     @Override
@@ -279,7 +288,11 @@ public class SysServiceSettingServiceImpl extends ServiceImpl<SysServiceSettingM
         ntpSettingDTO.setNtpPort(map.get("ntp_port").getSysServiceValue());
         ntpSettingDTO.setNtpInterval(map.get("ntp_interval").getIntegerValue());
         ntpSettingDTO.setNtpOption(map.get("ntp_option").getIntegerValue());
-        ntpSettingDTO.setLocalTime(DateUtil.parseTime(sysPlatformDeployService.getSystemTime()));
+        try {
+            ntpSettingDTO.setLocalTime(DateUtil.parseTime(sysPlatformDeployService.getSystemTime()));
+        }catch (Exception e){
+            log.error("获取系统当前时间异常",e);
+        }
         ntpSettingDTO.setNtpTimeZone(map.get("ntp_time_zone").getSysServiceValue());
         return ntpSettingDTO;
     }
@@ -352,7 +365,6 @@ public class SysServiceSettingServiceImpl extends ServiceImpl<SysServiceSettingM
     }
 
 
-
     @Override
     public void saveLogBackupConfig(LogBackupDTO logBackupDTO) {
         QueryWrapper<SysServiceSetting> queryWrapper = new QueryWrapper<>();
@@ -379,7 +391,6 @@ public class SysServiceSettingServiceImpl extends ServiceImpl<SysServiceSettingM
         }
 
 
-
         if (!StringUtil.isNullOrEmpty(logBackupDTO.getLogInfoSaveDays())) {
             SysServiceSetting sysServiceSetting = map.get("log_info_save_days");
             sysServiceSetting.setSysServiceValue(logBackupDTO.getLogInfoSaveDays().toString());
@@ -389,7 +400,7 @@ public class SysServiceSettingServiceImpl extends ServiceImpl<SysServiceSettingM
 
     @Override
     public void saveRestartRegularly(Long timing) {
-        SysTimingTask sysTimingTask = new SysTimingTask(BaseUtil.getSnowflakeId(),new Date(timing));
+        SysTimingTask sysTimingTask = new SysTimingTask(BaseUtil.getSnowflakeId(), new Date(timing));
         sysTimingTaskMapper.insert(sysTimingTask);
         mqTransactionalmessageSender.insertMqTransactionalMessage(SysTimingListenter.SYS_TIMING_QUEUE
                 , Convert.toStr(sysTimingTask.getId()), Math.max(0, timing - System.currentTimeMillis()));
@@ -458,6 +469,93 @@ public class SysServiceSettingServiceImpl extends ServiceImpl<SysServiceSettingM
             }
         }
         return serviceSettingList;
+    }
+
+    @Override
+    public MqttSetVO getMqttSetInfo() {
+
+        List<SysServiceSetting> sysServiceSettings = baseMapper.findBySysServiceType(SysServiceType.MQTT_SET.getType());
+        Map<String, Object> map = sysServiceSettings.stream().collect(Collectors.toMap(SysServiceSetting::getSysServiceCode, SysServiceSetting::getSysServiceValue));
+        MqttSet mqttSet = BeanUtil.mapToBean(map, MqttSet.class, Boolean.TRUE);
+
+        MqttSetVO mqttSetVO = new MqttSetVO();
+        mqttSetVO.setMqttEnable(mqttSet.getMqttEnable());
+        mqttSetVO.setMqttServiceId(mqttSet.getMqttServiceId());
+        mqttSetVO.setMqttServiceAddress(mqttSet.getMqttServiceAddress());
+        mqttSetVO.setMqttHostPort(mqttSet.getMqttHostPort());
+        mqttSetVO.setMqttAccount(mqttSet.getMqttAccount());
+        mqttSetVO.setMqttPassword(mqttSet.getMqttPassword());
+        mqttSetVO.setEventImageEnable(mqttSet.getEventImageEnable());
+        mqttSetVO.setBackgroundImageEnable(mqttSet.getBackgroundImageEnable());
+        mqttSetVO.setTopic(mqttSet.getTopic());
+        mqttSetVO.setDisconnectionEnable(mqttSet.getDisconnectionEnable());
+        mqttSetVO.setDisconnectionDays(mqttSet.getDisconnectionDays());
+        mqttSetVO.setMessageType(JSONUtil.parseArray(mqttSet.getMessageType()).toList(Integer.class));
+        mqttSetVO.setEventType(JSONUtil.parseArray(mqttSet.getEventType()).toList(String.class));
+
+        return mqttSetVO;
+    }
+
+    @Override
+    public void updateMqttSetInfo(MqttSetDTO mqttSetDTO) {
+
+
+        if (mqttSetDTO.getEventImageEnable() == null) {
+            mqttSetDTO.setEventImageEnable(MqttEnable.SHUT_DOWN.getOn());
+        }
+
+        if (mqttSetDTO.getBackgroundImageEnable() == null) {
+            mqttSetDTO.setBackgroundImageEnable(MqttEnable.SHUT_DOWN.getOn());
+        }
+
+
+        MqttSet mqttSet = new MqttSet();
+        mqttSet.setMqttEnable(mqttSetDTO.getMqttEnable());
+        mqttSet.setMqttServiceId(mqttSetDTO.getMqttServiceId());
+        mqttSet.setMqttServiceAddress(mqttSetDTO.getMqttServiceAddress());
+        mqttSet.setMqttHostPort(mqttSetDTO.getMqttHostPort());
+        mqttSet.setMqttAccount(mqttSetDTO.getMqttAccount());
+        mqttSet.setMqttPassword(mqttSetDTO.getMqttPassword());
+        mqttSet.setEventImageEnable(mqttSetDTO.getEventImageEnable());
+        mqttSet.setBackgroundImageEnable(mqttSetDTO.getBackgroundImageEnable());
+        mqttSet.setTopic(mqttSetDTO.getTopic());
+        mqttSet.setDisconnectionEnable(mqttSetDTO.getDisconnectionEnable());
+        mqttSet.setDisconnectionDays(mqttSetDTO.getDisconnectionDays());
+        mqttSet.setMessageType(JSONUtil.toJsonStr(mqttSetDTO.getMessageType()));
+        mqttSet.setEventType(JSONUtil.toJsonStr(mqttSetDTO.getEventType()));
+
+        Map<String, Object> map = BeanUtil.beanToMap(mqttSet, Boolean.TRUE, Boolean.FALSE);
+        List<String> codes = baseMapper.findSysServiceCodeBySysServiceCodeIn(map.keySet());
+
+        List<SysServiceSetting> sysServiceSettings = new ArrayList<>();
+
+        for (MqttSetEnum mqttSetEnum : MqttSetEnum.values()) {
+            final String sysServiceCode = mqttSetEnum.getSysServiceCode();
+            final String sysServiceValue = Convert.toStr(map.get(sysServiceCode));
+            if (!codes.contains(sysServiceCode)) {
+                SysServiceSetting sysServiceSetting = new SysServiceSetting();
+                sysServiceSetting.setSysServiceCode(mqttSetEnum.getSysServiceCode());
+                sysServiceSetting.setSysServiceName(mqttSetEnum.getSysServiceName());
+                sysServiceSetting.setSysServiceType(mqttSetEnum.getSysServiceType());
+                sysServiceSetting.setSysServiceValue(!org.springframework.util.StringUtils.isEmpty(sysServiceValue) ? sysServiceValue : mqttSetEnum.getSysServiceDefaultValue());
+                sysServiceSetting.setSysServiceDefaultValue(mqttSetEnum.getSysServiceDefaultValue());
+                sysServiceSetting.setSysServiceDescription(mqttSetEnum.getSysServiceDescription());
+                sysServiceSettings.add(sysServiceSetting);
+                map.remove(sysServiceCode);
+            }else {
+                map.put(sysServiceCode,!org.springframework.util.StringUtils.isEmpty(sysServiceValue) ? sysServiceValue : mqttSetEnum.getSysServiceDefaultValue());
+            }
+        }
+
+
+        if (!CollectionUtils.isEmpty(sysServiceSettings)) {
+            baseMapper.insertList(sysServiceSettings);
+        }
+
+        if (MapUtil.isNotEmpty(map)) {
+            baseMapper.updateMqttSetByMap(map);
+        }
+
     }
 
 }

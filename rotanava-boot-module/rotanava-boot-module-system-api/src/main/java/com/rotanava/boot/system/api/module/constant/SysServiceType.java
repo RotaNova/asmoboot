@@ -16,7 +16,12 @@ public enum  SysServiceType {
     /**
      * ldap
      */
-    LDAP(6);
+    LDAP(6),
+
+    /**
+     * mqtt集
+     */
+    MQTT_SET(8);
 
     private Integer type;
 

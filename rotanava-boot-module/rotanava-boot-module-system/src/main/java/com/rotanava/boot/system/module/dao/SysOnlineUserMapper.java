@@ -1,10 +1,10 @@
 package com.rotanava.boot.system.module.dao;
-import org.apache.ibatis.annotations.Param;
-import java.util.Collection;
-import java.util.List;
-
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.rotanava.boot.system.api.module.system.bo.SysOnlineUser;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -89,6 +89,12 @@ public interface SysOnlineUserMapper extends BaseMapper<SysOnlineUser> {
      * @update [序号][日期YYYY-MM-DD][更改人姓名][变更描述]
      */
     List<SysOnlineUser> findByUserAccountName(@Param("userAccountName")String userAccountName);
+
+
+    List<String> findSysUserTokenBySysUserTokenNotIn(@Param("sysUserTokenCollection")Collection<String> sysUserTokenCollection);
+
+    List<String> findSysUserToken();
+
 
 
 }

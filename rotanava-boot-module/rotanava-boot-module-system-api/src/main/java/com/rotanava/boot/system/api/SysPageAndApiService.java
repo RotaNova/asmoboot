@@ -2,6 +2,8 @@ package com.rotanava.boot.system.api;
 
 import cn.hutool.core.lang.tree.Tree;
 import com.rotanava.boot.system.api.module.constant.SysPermissionType;
+import com.rotanava.boot.system.api.module.system.bean.PermissionListAndId;
+import com.rotanava.boot.system.api.module.system.bo.SysPagePermission;
 import com.rotanava.boot.system.api.module.system.vo.SysApiChooseVO;
 import org.springframework.validation.annotation.Validated;
 
@@ -47,4 +49,6 @@ public interface SysPageAndApiService {
      * 版本: 1.0
      */
     void saveSysPermissionApi(SysPermissionType sysPermissionType, int sysRoleId, int sysPageModuleTypeId, int sysParentPageId, Set<Integer> sysPageIdList);
+
+    void saveSysPermissionApi(SysPermissionType sysPermissionType, int sysRoleId, List<SysPagePermission> sysPagePermissionList, int sysParentPageId, Set<Integer> sysPageIdList, PermissionListAndId permissionListAndId);
 }

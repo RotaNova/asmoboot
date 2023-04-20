@@ -67,12 +67,12 @@ public class DataDecryptionFilter implements Filter {
                 //这边进行加解密后 明文传入
                 String userAccountName = AESUtil.Decrypt(loginDTO.getUserAccountName(), CommonConstant.AES_DECRYPTION_KEY);
                 String userPassword = AESUtil.Decrypt(loginDTO.getUserPassword(), CommonConstant.AES_DECRYPTION_KEY);
-                if (userAccountName != null) {
+//                if (userAccountName != null) {
                     loginDTO.setUserAccountName(userAccountName);
-                }
-                if (userPassword != null) {
+//                }
+//                if (userPassword != null) {
                     loginDTO.setUserPassword(userPassword);
-                }
+//                }
                 get(response, chain, servletRequest, JSONUtil.toJsonStr(loginDTO));
                 break;
             case "/v1/setAccount/updatePasswordByOldPassword":

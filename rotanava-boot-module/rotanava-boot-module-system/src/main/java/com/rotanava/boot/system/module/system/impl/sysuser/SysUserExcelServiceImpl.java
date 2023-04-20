@@ -1,6 +1,7 @@
 package com.rotanava.boot.system.module.system.impl.sysuser;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
 import com.google.common.collect.Lists;
 import com.rotanava.boot.system.api.SysAnnouncementSenderService;
@@ -24,11 +25,11 @@ import com.rotanava.boot.system.module.dao.SysRoleMapper;
 import com.rotanava.boot.system.module.dao.SysUserDepartmentMapper;
 import com.rotanava.boot.system.module.dao.SysUserMapper;
 import com.rotanava.boot.system.module.dao.SysUserRoleMapper;
-import com.rotanava.framework.common.constant.enums.UserStatus;
+import com.rotanava.framework.code.CommonException;
 import com.rotanava.framework.common.constant.BucketNamePool;
+import com.rotanava.framework.common.constant.enums.UserStatus;
 import com.rotanava.framework.common.oss.FileUploadUtil;
 import com.rotanava.framework.common.oss.model.UploadResultBean;
-import com.rotanava.framework.code.CommonException;
 import com.rotanava.framework.exception.code.ParamErrorCode;
 import com.rotanava.framework.util.Date8Util;
 import com.rotanava.framework.util.excel.ExcelUtils;
@@ -37,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -56,37 +58,37 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class SysUserExcelServiceImpl implements SysUserExcelService {
-
+    
     public static final String BIRTHDAY_PARTTER = "yyyy/MM/dd";
     public static final String VALIDTIME_PARTTER = "yyyy/MM/dd HH:mm:ss";
-
+    
     @Autowired
     private SysDepartmentMapper sysDepartmentMapper;
-
+    
     @Autowired
     private SysRoleMapper sysRoleMapper;
-
+    
     @Autowired
     private SysAnnouncementSenderService sysAnnouncementSenderService;
-
+    
     @Autowired
     private SysUserService sysUserService;
-
+    
     @Autowired
     private FileUploadUtil fileUploadUtil;
-
+    
     @Autowired
     private SysUserMapper sysUserMapper;
-
+    
     @Autowired
     private SysUserDepartmentMapper sysUserDepartmentMapper;
-
+    
     @Autowired
     private SysUserRoleMapper sysUserRoleMapper;
-
+    
     @Autowired
     private SysUserExcelService sysUserExcelService;
-
+    
     /**
      * 功能: Excel批量导入系统用户
      * 作者: zjt
@@ -107,11 +109,11 @@ public class SysUserExcelServiceImpl implements SysUserExcelService {
             //文件解析错误
             throw new CommonException(ParamErrorCode.PARAM_ERROR_60);
         }
-
+        
         for (SysUserExcel sysUserExcel : sysUserExcelList) {
             sysUserExcelService.parseSysUserExcel(sysUserExcel, errorSysUserExcelList, userId);
         }
-
+        
         if (errorSysUserExcelList.size() > 0) {
             //导入出错
             final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -128,29 +130,27 @@ public class SysUserExcelServiceImpl implements SysUserExcelService {
             sysAnnouncementSenderService.sendAnnouncement(SysAnnConfigIdEnum.SYSANNCONFIGID_1, msg, msg, msg, Lists.newArrayList(userId), AnnPriorityType.MIDDLE);
         }
     }
-
+    
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public List<SysUserExcelExport> getSysUserExcelList() {
         List<SysUserExcelExport> sysUserExcelList = Lists.newArrayList();
-
+        
         final List<SysUser> sysUserList = sysUserMapper.selectList(null);
         final Map<Integer, String> sysDepartmentMap = sysDepartmentMapper.selectList(null).stream().collect(Collectors.toMap(SysDepartment::getId, SysDepartment::getDeptName));
         final Map<Integer, String> sysRoleMap = sysRoleMapper.selectList(null).stream().collect(Collectors.toMap(SysRole::getId, SysRole::getRoleName));
         final Map<Integer, List<SysUserDepartment>> sysUserDepartmentMap = sysUserDepartmentMapper.selectList(null).stream().collect(Collectors.groupingBy(SysUserDepartment::getSysUserId, Collectors.toList()));
         final Map<Integer, List<Integer>> sysUserRoleMap = sysUserRoleMapper.selectList(null).stream().collect(Collectors.groupingBy(SysUserRole::getSysUserId, Collectors.mapping(SysUserRole::getSysRoleId, Collectors.toList())));
-
-
+        
+        
         for (SysUser sysUser : sysUserList) {
             final SysUserExcelExport sysUserExcelExport = new SysUserExcelExport();
-
+            
             final Integer sysUserId = sysUser.getId();
-
+            
             final List<SysUserDepartment> sysUserDepartmentList = sysUserDepartmentMap.getOrDefault(sysUserId, Lists.newArrayList());
-
-            sysUserExcelExport.setResponsibleDeptList(getStrName(sysUserDepartmentList.stream()
-                    .filter(sysDepartment -> sysDepartment.getDeptManage().equals(DeptManageStatus.ADMINISTRATOR.getStatus()))
-                    .map(SysUserDepartment::getSysDepartmentId).collect(Collectors.toList()), sysDepartmentMap));
+            
+            sysUserExcelExport.setResponsibleDeptList(getStrName(sysUserDepartmentList.stream().filter(sysDepartment -> sysDepartment.getDeptManage().equals(DeptManageStatus.ADMINISTRATOR.getStatus())).map(SysUserDepartment::getSysDepartmentId).collect(Collectors.toList()), sysDepartmentMap));
             sysUserExcelExport.setStatus(UserStatus.getDescByStatus(sysUser.getUserStatus()));
             sysUserExcelExport.setSysDepartmentIdList(getStrName(sysUserDepartmentList.stream().map(SysUserDepartment::getSysDepartmentId).collect(Collectors.toList()), sysDepartmentMap));
             sysUserExcelExport.setSysRoleIdList(getStrName(sysUserRoleMap.get(sysUserId), sysRoleMap));
@@ -167,16 +167,16 @@ public class SysUserExcelServiceImpl implements SysUserExcelService {
             sysUserExcelExport.setUserValidTime(Optional.ofNullable(sysUser.getUserValidTime()).map(time -> DateUtil.format(time, VALIDTIME_PARTTER)).orElse(null));
             sysUserExcelList.add(sysUserExcelExport);
         }
-
+        
         return sysUserExcelList;
     }
-
+    
     @Override
     public String getImportExcelFile() {
         return fileUploadUtil.getObjUrl(BucketNamePool.IMPORT_EXCEL_FILE_BUCKET, "用户导入模板.xlsx", 6);
     }
-
-
+    
+    
     /**
      * 功能: 解析
      * 作者: zjt
@@ -187,7 +187,7 @@ public class SysUserExcelServiceImpl implements SysUserExcelService {
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public void parseSysUserExcel(SysUserExcel sysUserExcel, List<SysUserExcel> errorSysUserExcelList, int userId) {
         final AddSysUserDTO addSysUserDTO = new AddSysUserDTO();
-
+        
         if (StringUtils.isEmpty(sysUserExcel.getUserName())) {
             sysUserExcel.setFailReason("用户名为空");
             errorSysUserExcelList.add(sysUserExcel);
@@ -195,7 +195,7 @@ public class SysUserExcelServiceImpl implements SysUserExcelService {
         } else {
             addSysUserDTO.setUserName(sysUserExcel.getUserName());
         }
-
+        
         if (StringUtils.isEmpty(sysUserExcel.getUserAccountName())) {
             sysUserExcel.setFailReason("登录账号为空");
             errorSysUserExcelList.add(sysUserExcel);
@@ -203,7 +203,7 @@ public class SysUserExcelServiceImpl implements SysUserExcelService {
         } else {
             addSysUserDTO.setUserAccountName(sysUserExcel.getUserAccountName());
         }
-
+        
         final String userPassword = sysUserExcel.getUserPassword();
         if (StringUtils.isEmpty(userPassword)) {
             //默认与账号同名
@@ -211,34 +211,45 @@ public class SysUserExcelServiceImpl implements SysUserExcelService {
         } else {
             addSysUserDTO.setUserPassword(sysUserExcel.getUserPassword());
         }
-
+        
         try {
-            addSysUserDTO.setSysDepartmentIdList(getDeptIdList(sysUserExcel.getSysDepartmentIdList().split(";")));
+            final String sysDepartmentIdList = Convert.toStr(sysUserExcel.getSysDepartmentIdList(), "");
+            if (org.apache.commons.lang3.StringUtils.isNotBlank(sysDepartmentIdList)) {
+                addSysUserDTO.setSysDepartmentIdList(getDeptIdList(sysDepartmentIdList.split(";")));
+            }
         } catch (UnsupportedOperationException unsupportedOperationException) {
             sysUserExcel.setFailReason("用户所属部门:" + unsupportedOperationException.getMessage());
             errorSysUserExcelList.add(sysUserExcel);
             return;
         }
-
+        
         final String userSysrole = sysUserExcel.getUserSysrole();
         if ("管理员".equals(userSysrole)) {
             addSysUserDTO.setUserSysrole(UserSysRole.ADMINISTRATOR.getType());
         } else if ("成员".equals(userSysrole)) {
             addSysUserDTO.setUserSysrole(UserSysRole.MEMBER.getType());
         } else {
-            sysUserExcel.setFailReason(String.format("%s 该账号身份有误,请修改", userSysrole));
-            errorSysUserExcelList.add(sysUserExcel);
-            return;
+            addSysUserDTO.setUserSysrole(UserSysRole.MEMBER.getType());
         }
-
+        
         try {
-            addSysUserDTO.setResponsibleDeptList(getDeptIdList(sysUserExcel.getResponsibleDeptList().split(";")));
+            final String responsibleDeptList = sysUserExcel.getResponsibleDeptList();
+            if (responsibleDeptList != null && addSysUserDTO.getUserSysrole().equals(UserSysRole.ADMINISTRATOR.getType())) {
+                final List<Integer> sysDepartmentIdList = addSysUserDTO.getSysDepartmentIdList();
+                final List<Integer> deptIdList = getDeptIdList(Convert.toStr(responsibleDeptList).split(";"));
+                addSysUserDTO.setResponsibleDeptList(Lists.newArrayList(deptIdList));
+                deptIdList.removeAll(sysDepartmentIdList);
+                
+                if (deptIdList.size() > 0) {
+                    throw new UnsupportedOperationException("只可填自己所属的部门");
+                }
+            }
         } catch (UnsupportedOperationException unsupportedOperationException) {
             sysUserExcel.setFailReason("负责部门:" + unsupportedOperationException.getMessage());
             errorSysUserExcelList.add(sysUserExcel);
             return;
         }
-
+        
         if (StringUtils.isEmpty(sysUserExcel.getUserCode())) {
             sysUserExcel.setFailReason("编号为空");
             errorSysUserExcelList.add(sysUserExcel);
@@ -246,7 +257,7 @@ public class SysUserExcelServiceImpl implements SysUserExcelService {
         } else {
             addSysUserDTO.setUserCode(sysUserExcel.getUserCode());
         }
-
+        
         final String userValidTime = sysUserExcel.getUserValidTime();
         if (!StringUtils.isEmpty(userValidTime)) {
             try {
@@ -259,7 +270,7 @@ public class SysUserExcelServiceImpl implements SysUserExcelService {
         } else {
             addSysUserDTO.setUserValidTime(4102329600000L);
         }
-
+        
         final String userSex = sysUserExcel.getUserSex();
         if ("女".equals(userSex)) {
             addSysUserDTO.setUserSex(0);
@@ -268,24 +279,27 @@ public class SysUserExcelServiceImpl implements SysUserExcelService {
         } else if (StringUtils.isEmpty(userSex)) {
             addSysUserDTO.setUserSex(2);
         }
-
+        
         final List<Integer> sysRoleIdList = Lists.newArrayList();
-        for (String sysRoleName : sysUserExcel.getSysRoleIdList().split(";")) {
-            final List<Integer> roleNameList = sysRoleMapper.findIdByRoleName(sysRoleName);
-            if (roleNameList.isEmpty()) {
-                sysUserExcel.setFailReason(String.format("%s 该系统角色名称没找到,请修改", sysRoleName));
-                errorSysUserExcelList.add(sysUserExcel);
-                return;
+        String roleIdList = sysUserExcel.getSysRoleIdList();
+        if (roleIdList != null) {
+            for (String sysRoleName : Convert.toStr(roleIdList).split(";")) {
+                final List<Integer> roleNameList = sysRoleMapper.findIdByRoleName(sysRoleName);
+                if (roleNameList.isEmpty()) {
+                    sysUserExcel.setFailReason(String.format("%s 该系统角色名称没找到,请修改", sysRoleName));
+                    errorSysUserExcelList.add(sysUserExcel);
+                    return;
+                }
+                sysRoleIdList.add(roleNameList.get(0));
             }
-            sysRoleIdList.add(roleNameList.get(0));
         }
         addSysUserDTO.setSysRoleIdList(sysRoleIdList);
-
+        
         addSysUserDTO.setUserOccupation(sysUserExcel.getUserOccupation());
         addSysUserDTO.setUserPhone(sysUserExcel.getUserPhone());
         addSysUserDTO.setUserEmail(sysUserExcel.getUserSafeEmail());
         addSysUserDTO.setUserAddress(sysUserExcel.getUserAddress());
-
+        
         final String userBirthday = sysUserExcel.getUserBirthday();
         if (!StringUtils.isEmpty(userBirthday)) {
             try {
@@ -296,17 +310,25 @@ public class SysUserExcelServiceImpl implements SysUserExcelService {
                 return;
             }
         }
-
+        
         try {
             sysUserService.addSysUser(addSysUserDTO, null, userId, false);
         } catch (Exception e) {
+            String errorMsg = "";
+            if (e instanceof CommonException) {
+                final CommonException commonException = (CommonException) e;
+                errorMsg = commonException.getErrorCode().getMsg();
+            } else {
+                errorMsg = e.getMessage();
+            }
 //            log.error("导入用户失败", e);
-            sysUserExcel.setFailReason(e.getMessage());
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
+            sysUserExcel.setFailReason("导入用户失败:" + errorMsg);
             errorSysUserExcelList.add(sysUserExcel);
         }
     }
-
-
+    
+    
     /**
      * 功能: 获取部门id
      * 作者: zjt
@@ -324,7 +346,7 @@ public class SysUserExcelServiceImpl implements SysUserExcelService {
         }
         return sysDepartmentIdList;
     }
-
+    
     /**
      * 功能: 获取描述
      * 作者: zjt
@@ -335,14 +357,14 @@ public class SysUserExcelServiceImpl implements SysUserExcelService {
         if (CollectionUtil.isEmpty(idList)) {
             return "";
         }
-
+        
         final List<String> strList = Lists.newArrayList();
         for (Integer id : idList) {
             final String str = cacheMap.get(id);
             strList.add(str);
         }
-
+        
         return String.join(";", strList);
     }
-
+    
 }

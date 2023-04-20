@@ -22,4 +22,11 @@ public interface SysBackUpService extends IService<SysBackup> {
 
 
     BaseVO<SysBackupVO> getSysBackupList(Integer serviceType);
+
+    /**
+     * @description : 恢复出厂设置
+     * @Author : richenLi
+     * @version :  1.0
+     */
+    void systemFactoryReset();
 }

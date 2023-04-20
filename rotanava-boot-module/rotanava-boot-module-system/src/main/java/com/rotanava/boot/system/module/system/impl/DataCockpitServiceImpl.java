@@ -20,6 +20,7 @@ import com.rotanava.framework.code.CommonException;
 import com.rotanava.framework.exception.code.ParamErrorCode;
 import com.rotanava.framework.util.Date8Util;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -42,6 +43,9 @@ import java.util.stream.Collectors;
 public class DataCockpitServiceImpl implements DataCockpitService {
 
     public static final long CONTINUOUS_WORKING_PERIOD = System.currentTimeMillis();
+
+    @Value("${system.monitoring.type}")
+    private Integer monitoring;
 
     @Autowired
     private UserLoginInfoMapper userLoginInfoMapper;
@@ -135,23 +139,30 @@ public class DataCockpitServiceImpl implements DataCockpitService {
         dataCockpitVO.setMonthAccessSourceStatistics(monthAccessSourceStatistics);
         dataCockpitVO.setWeekAccessDeviceStatistics(weekAccessDeviceStatistics);
         dataCockpitVO.setMonthAccessDeviceStatistics(monthAccessDeviceStatistics);
-        long clusterDiskSizeCapacity = 0L;
-        long clusterDiskSizeAvailable = 0L;
-        List<ClusterResultsVO> clusterResults = sysPlatformDeployService.getCluster(CommonConstant.SYSTEM_OAUTH_TOKEN);
-        for (ClusterResultsVO clusterResult : clusterResults) {
-            ClusterDataVO data = clusterResult.getData();
-            List<ClusterResultVO> result = data.getResult();
-            ClusterResultVO clusterResultVO = result.get(0);
-            List<BigDecimal> value = clusterResultVO.getValue();
+        if (monitoring == 1) {
+            long clusterDiskSizeCapacity = 0L;
+            long clusterDiskSizeAvailable = 0L;
+            List<ClusterResultsVO> clusterResults = sysPlatformDeployService.getCluster(CommonConstant.SYSTEM_OAUTH_TOKEN);
+            for (ClusterResultsVO clusterResult : clusterResults) {
+                ClusterDataVO data = clusterResult.getData();
+                List<ClusterResultVO> result = data.getResult();
+                ClusterResultVO clusterResultVO = result.get(0);
+                List<BigDecimal> value = clusterResultVO.getValue();
 
-            if (Cluster.CLUSTER_DISK_SIZE_CAPACITY.getSign().equals(clusterResult.getMetric_name())) {
-                clusterDiskSizeCapacity = value.get(1).longValue();
+                if (Cluster.CLUSTER_DISK_SIZE_CAPACITY.getSign().equals(clusterResult.getMetric_name())) {
+                    clusterDiskSizeCapacity = value.get(1).longValue();
+                }
+                if (Cluster.CLUSTER_DISK_SIZE_AVAILABLE.getSign().equals(clusterResult.getMetric_name())) {
+                    clusterDiskSizeAvailable = value.get(1).longValue();
+                }
             }
-            if (Cluster.CLUSTER_DISK_SIZE_AVAILABLE.getSign().equals(clusterResult.getMetric_name())) {
-                clusterDiskSizeAvailable = value.get(1).longValue();
-            }
+            dataCockpitVO.setDiskUsage(String.format("%s/%s", clusterDiskSizeCapacity - clusterDiskSizeAvailable, clusterDiskSizeCapacity));
         }
-        dataCockpitVO.setDiskUsage(String.format("%s/%s", clusterDiskSizeCapacity - clusterDiskSizeAvailable, clusterDiskSizeCapacity));
+
+        if (monitoring == 0) {
+            HTTP http = sysPlatformDeployService.getHttpClient(CommonConstant.SYSTEM_DISK_USAGE);
+            dataCockpitVO.setDiskUsage(http.async(CommonConstant.SYSTEM_DISK_USAGE).get().getResult().getBody().toString());
+        }
         dataCockpitVO.setTodayPageViews(todayData.getLoginFrequency());
         dataCockpitVO.setOperatingTime(System.currentTimeMillis() - ManagementFactory.getRuntimeMXBean().getStartTime());
         return dataCockpitVO;

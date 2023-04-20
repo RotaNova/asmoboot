@@ -6,6 +6,7 @@ import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.json.JSONUtil;
 import com.google.common.collect.Lists;
+import com.rotanava.boot.system.api.DingTalkRobotService;
 import com.rotanava.boot.system.api.SysAnnouncementConfigService;
 import com.rotanava.boot.system.api.module.constant.AllowCloseNoticeType;
 import com.rotanava.boot.system.api.module.constant.AnnCategory;
@@ -16,10 +17,7 @@ import com.rotanava.boot.system.api.module.system.bean.SysDepartmentLabel;
 import com.rotanava.boot.system.api.module.system.bean.SysUserLabel;
 import com.rotanava.boot.system.api.module.system.bo.SysAnnouncementConfig;
 import com.rotanava.boot.system.api.module.system.bo.SysUserAnnouncementConfig;
-import com.rotanava.boot.system.api.module.system.dto.AddAnnouncementConfigDTO;
-import com.rotanava.boot.system.api.module.system.dto.EditAnnouncementConfigDTO;
-import com.rotanava.boot.system.api.module.system.dto.SaveAnnouncementConfigDTO;
-import com.rotanava.boot.system.api.module.system.dto.SaveAnnouncementReceiveConfigDTO;
+import com.rotanava.boot.system.api.module.system.dto.*;
 import com.rotanava.boot.system.api.module.system.vo.AnnouncementConfigInfoVO;
 import com.rotanava.boot.system.api.module.system.vo.AnnouncementConfigVO;
 import com.rotanava.boot.system.api.module.system.vo.AnnouncementReceiveConfigVO;
@@ -40,6 +38,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Set;
@@ -68,6 +67,9 @@ public class SysAnnouncementConfigServiceImpl implements SysAnnouncementConfigSe
     @Autowired
     private SysUserAnnouncementConfigMapper sysUserAnnouncementConfigMapper;
 
+    @Autowired
+    private DingTalkRobotService dingTalkRobotService;
+
 
     @Override
     @Transactional(rollbackFor = Throwable.class)
@@ -88,6 +90,7 @@ public class SysAnnouncementConfigServiceImpl implements SysAnnouncementConfigSe
             announcementConfigVO.setSysNotice(sysAnnouncementConfig.getSysNotice());
             announcementConfigVO.setWechatNotice(sysAnnouncementConfig.getWechatNotice());
             announcementConfigVO.setAllowCloseNotice(sysAnnouncementConfig.getAllowCloseNotice());
+            announcementConfigVO.setDingTalkNotice(sysAnnouncementConfig.getDingTalkNotice());
             if (sysAnnouncementConfigId > 3) {
                 announcementConfigVO.setAnnTarget(sysAnnouncementConfig.getAnnTarget());
             }
@@ -229,7 +232,22 @@ public class SysAnnouncementConfigServiceImpl implements SysAnnouncementConfigSe
         }
 
         if (CollectionUtil.isNotEmpty(sysAnnConfigIdList)) {
+            List<SysAnnouncementConfig> sysAnnouncementConfigs = sysAnnouncementConfigMapper.selectBatchIds(sysAnnConfigIdList);
+            for (SysAnnouncementConfig sysAnnouncementConfig : sysAnnouncementConfigs) {
+                String annDingTalkIds = sysAnnouncementConfig.getAnnDingTalkIds();
+                if (!StringUtils.isEmpty(annDingTalkIds) && JSONUtil.isJsonArray(annDingTalkIds)) {
+                    List<Integer> dingTalkIds = JSONUtil.parseArray(annDingTalkIds).toList(Integer.class);
+                    for (Integer dingTalkId : dingTalkIds) {
+                        DeleteDingTalkRobotDTO deleteDingTalkRobotDTO = new DeleteDingTalkRobotDTO();
+                        deleteDingTalkRobotDTO.setSysAnnConfigId(sysAnnouncementConfig.getId());
+                        deleteDingTalkRobotDTO.setDingTalkRobotId(dingTalkId);
+                        dingTalkRobotService.deleteDingTalkRobot(deleteDingTalkRobotDTO);
+                    }
+                }
+            }
+
             sysAnnouncementConfigMapper.deleteBatchIds(sysAnnConfigIdList);
+
         }
     }
 
@@ -275,6 +293,7 @@ public class SysAnnouncementConfigServiceImpl implements SysAnnouncementConfigSe
             sysAnnouncementConfig.setSysNotice(allow);
             sysAnnouncementConfig.setType(addAnnouncementConfigDTO.getType());
             sysAnnouncementConfig.setWechatNotice(allow);
+            sysAnnouncementConfig.setDingTalkNotice(allow);
 
             sysAnnouncementConfig.setAnnTarget(addAnnouncementConfigDTO.getAnnTarget());
             sysAnnouncementConfig.setAnnUserIds(JSONUtil.toJsonStr(addAnnouncementConfigDTO.getSysUserIdList()));

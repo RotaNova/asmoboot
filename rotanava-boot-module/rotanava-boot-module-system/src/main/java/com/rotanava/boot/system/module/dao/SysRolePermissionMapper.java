@@ -32,6 +32,8 @@ public interface SysRolePermissionMapper extends BaseMapper<SysRolePermission> {
 
     int deleteByPageIdInAndSysRoleId(@Param("pageIdCollection")Collection<Integer> pageIdCollection,@Param("sysRoleId")Integer sysRoleId);
 
+    int deleteBySysRoleIdAndPageIdIn(@Param("sysRoleId")Integer sysRoleId,@Param("pageIdCollection")Collection<Integer> pageIdCollection);
+
 
 
 }

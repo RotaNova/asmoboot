@@ -18,6 +18,7 @@
         <module>rotanava-boot-base-core-api</module>
         <module>rotanava-boot-base-common-code</module>
         <module>rotanava-boot-base-dingding</module>
+        <module>rotanava-boot-base-platform-core</module>
     </modules>
 
 

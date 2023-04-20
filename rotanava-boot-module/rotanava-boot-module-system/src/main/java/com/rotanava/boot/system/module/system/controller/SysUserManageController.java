@@ -15,6 +15,7 @@ import com.rotanava.boot.system.api.module.system.dto.RestPasswordDTO;
 import com.rotanava.boot.system.api.module.system.dto.UpdateSysUserDTO;
 import com.rotanava.boot.system.api.module.system.vo.SysUserInfoVO;
 import com.rotanava.boot.system.api.module.system.vo.SysUserItemVO;
+import com.rotanava.framework.async.ThreadPoolUtil;
 import com.rotanava.framework.code.RetData;
 import com.rotanava.framework.common.aspect.annotation.AdviceResponseBody;
 import com.rotanava.framework.common.aspect.annotation.AutoLog;
@@ -23,6 +24,7 @@ import com.rotanava.framework.util.SysUtil;
 import com.rotanava.framework.util.excel.ExcelUtils;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -111,7 +113,14 @@ public class SysUserManageController {
     @AutoLog(value = "导入用户", operateType = OperateTypeEnum.ADD)
     @AdviceResponseBody
     public RetData batchImportSysUser(@NotNull(message = "缺少文件") @RequestParam(name = "photoFile", required = false) MultipartFile photoFile) throws Exception {
-        sysUserExcelService.batchImportSysUser(photoFile, SysUtil.getCurrentReqUserId());
+        ThreadPoolUtil.execute(new Runnable() {
+            @SneakyThrows
+            @Override
+            public void run() {
+                sysUserExcelService.batchImportSysUser(photoFile, SysUtil.getCurrentReqUserId());
+            }
+        });
+
         return RetData.ok();
     }
     

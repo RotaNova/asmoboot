@@ -17,6 +17,7 @@ import com.rotanava.boot.system.api.module.system.vo.UserLoginInfoVO;
 import com.rotanava.boot.system.module.dao.SysBehaviorLogMapper;
 import com.rotanava.boot.system.module.dao.UserLoginInfoMapper;
 import com.rotanava.framework.config.mybatis.query.QueryGenerator;
+import com.rotanava.framework.global.GlobalClass;
 import com.rotanava.framework.model.BaseDTO;
 import com.rotanava.framework.model.BaseVO;
 import com.rotanava.framework.util.BuildUtil;
@@ -38,7 +39,6 @@ import java.util.List;
  **/
 @Service
 public class SysBehaviorLogServiceImpl  extends ServiceImpl<SysBehaviorLogMapper, SysBehaviorLog> implements SysBehaviorLogService {
-
     @Autowired
     private UserLoginInfoMapper userLoginInfoMapper;
 

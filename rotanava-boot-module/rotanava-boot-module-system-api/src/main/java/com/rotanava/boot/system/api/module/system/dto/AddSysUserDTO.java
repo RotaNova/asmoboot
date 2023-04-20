@@ -114,4 +114,10 @@ public class AddSysUserDTO implements Serializable {
      */
     @ApiModelProperty(value = "用户所属部门", required = true)
     private List<Integer> sysDepartmentIdList;
+
+
+    /**
+     *  用户状态 系统用户状态:0-未激活;1-正常:2-冻结:3-过期
+     */
+    private Integer userStatus;
 }

@@ -21,7 +21,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
         <spring-cloud-alibaba.version>2.2.3.RELEASE</spring-cloud-alibaba.version>
-        <xxl-job-core.version>2.2.0</xxl-job-core.version>
+        <xxl-job-core.version>2.3.0</xxl-job-core.version>
         <fastjson.version>1.2.75</fastjson.version>
         <knife4j-spring-boot-starter.version>2.0.4</knife4j-spring-boot-starter.version>
         <knife4j-spring-ui.version>2.0.4</knife4j-spring-ui.version>
@@ -31,7 +31,7 @@
         <mysql-connector-java.version>8.0.21</mysql-connector-java.version>
         <mybatis-spring-boot-starter.version>1.3.4</mybatis-spring-boot-starter.version>
         <dynamic-datasource-spring-boot-starter.version>3.2.0</dynamic-datasource-spring-boot-starter.version>
-        <hutool-all.version>5.3.10</hutool-all.version>
+        <hutool-all.version>5.8.8</hutool-all.version>
         <redisson.version>3.13.6</redisson.version>
         <commons-beanutils.version>1.9.4</commons-beanutils.version>
         <guava.version>29.0-jre</guava.version>
@@ -65,7 +65,9 @@
         <dingtalk.version>1.1.90</dingtalk.version>
         <ffmpeg.version>3.2.1-1.3</ffmpeg.version>
         <javacv.version>1.4.1</javacv.version>
+        <zip4j.version>2.11.4</zip4j.version>
     </properties>
+
 
     <modules>
         <module>rotanava-boot-base</module>
@@ -76,37 +78,141 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
+            <groupId>com.influxdb</groupId>
+            <artifactId>influxdb-client-java</artifactId>
+            <version>${influxdb-client-java.version}</version>
         </dependency>
-
-        <!-- Lombok -->
+        <!--            <dependency>-->
+        <!--                <groupId>com.rotanava.face</groupId>-->
+        <!--                <artifactId>comoon-websocket</artifactId>-->
+        <!--                <version>1.0.7</version>-->
+        <!--                <exclusions>-->
+        <!--                    <exclusion>-->
+        <!--                        <groupId>org.springframework.boot</groupId>-->
+        <!--                        <artifactId>spring-boot-starter-data-mongodb</artifactId>-->
+        <!--                    </exclusion>-->
+        <!--                </exclusions>-->
+        <!--            </dependency>-->
         <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.8</version>
-            <scope>provided</scope>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-base-core-api</artifactId>
+            <version>${rotanava.boot.version}</version>
         </dependency>
-        <!-- json -->
         <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-            <version>${fastjson.version}</version>
+            <groupId>com.rotanava.aliyun</groupId>
+            <artifactId>oss</artifactId>
+            <version>${oss.version}</version>
         </dependency>
-        <!-- http://repo1.maven.org/maven2/com/xuxueli/xxl-job-core/ -->
-        <!-- https://mvnrepository.com/artifact/com.xuxueli/xxl-job-core -->
+        <!--            <dependency>-->
+        <!--                <groupId>com.ejlchina</groupId>-->
+        <!--                <artifactId>okhttps</artifactId>-->
+        <!--                <version>1.0.2</version>-->
+        <!--            </dependency>-->
         <dependency>
-            <groupId>com.xuxueli</groupId>
-            <artifactId>rotanova-xxl-job-core</artifactId>
-            <version>${xxl-job-core.version}</version>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-cloud-websocket-api</artifactId>
+            <version>${rotanava.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-base-common-code</artifactId>
+            <version>${rotanava.boot.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-dependencies</artifactId>
-            <version>Hoxton.SR3</version>
-            <type>pom</type>
-            <scope>import</scope>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <version>2.2.2.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-base-core</artifactId>
+            <version>${rotanava.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-base-dingding</artifactId>
+            <version>${rotanava.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-module-system-api</artifactId>
+            <version>${rotanava.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-base-platform-core</artifactId>
+            <version>${rotanava.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-module-basics-api</artifactId>
+            <version>${rotanava.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-module-basedata-api</artifactId>
+            <version>${rotanava.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-module-protection-ai-api</artifactId>
+            <version>${rotanava.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-module-protection-api</artifactId>
+            <version>${rotanava.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.rotanova.framework</groupId>
+            <artifactId>rotanava-boot-module-dbapi-api</artifactId>
+            <version>${rotanava.boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>${hutool-all.version}</version>
+        </dependency>
+        <!-- RPC 相关 -->
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-spring-boot-starter</artifactId>
+            <version>${dubbo.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <version>4.0.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.jeasy/easy-rules-core -->
+        <dependency>
+            <groupId>org.jeasy</groupId>
+            <artifactId>easy-rules-core</artifactId>
+            <version>4.1.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.jeasy/easy-rules-core -->
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>dingtalk</artifactId>
+            <version>${dingtalk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>6.6</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.lingala.zip4j</groupId>
+            <artifactId>zip4j</artifactId>
+            <version>${zip4j.version}</version>
         </dependency>
 
     </dependencies>
@@ -170,6 +276,11 @@
             <dependency>
                 <groupId>com.rotanova.framework</groupId>
                 <artifactId>rotanava-boot-base-dingding</artifactId>
+                <version>${rotanava.boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.rotanova.framework</groupId>
+                <artifactId>rotanava-boot-base-platform-core</artifactId>
                 <version>${rotanava.boot.version}</version>
             </dependency>
             <dependency>

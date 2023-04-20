@@ -2,13 +2,12 @@ package com.rotanava.boot.system.module.system.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.rotanava.boot.system.api.ManageSecurityService;
-import com.rotanava.boot.system.api.module.constant.LoginAccountPassOutOn;
-import com.rotanava.boot.system.api.module.constant.LoginLockoutStrategyOn;
-import com.rotanava.boot.system.api.module.constant.SysServiceType;
+import com.rotanava.boot.system.api.module.constant.*;
 import com.rotanava.framework.model.bo.ManageSecurity;
 import com.rotanava.boot.system.api.module.system.bo.SysServiceSetting;
 import com.rotanava.boot.system.api.module.system.dto.ManageSecurityDTO;
@@ -24,8 +23,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -68,7 +70,7 @@ public class ManageSecurityServiceImpl implements ManageSecurityService {
         ManageSecurity manageSecurity = getManageSecurity();
 
         if (LoginAccountPassOutOn.TURN_ON.getOn().equals(manageSecurityDTO.getAccountPassOutOn())) {
-            if (manageSecurityDTO.getAccountPassOutOn() == null) {
+            if (manageSecurityDTO.getAccountPassOutMins() == null) {
                 Optional.ofNullable(manageSecurity.getAccountPassOutMins()).ifPresent(manageSecurityDTO::setAccountPassOutMins);
             }
         }
@@ -90,8 +92,35 @@ public class ManageSecurityServiceImpl implements ManageSecurityService {
         IPUtils.checkNetworkSegment(memberIps);
         manageSecurityDTO.setMemberLoginIpFiltering(String.join(",", memberIps));
 
-        Map<String, Object> securityManageMap = BeanUtil.beanToMap(manageSecurityDTO, Boolean.TRUE, Boolean.TRUE);
-        sysServiceSettingMapper.updateManageSecurityByMap(securityManageMap);
+        Map<String, Object> map = BeanUtil.beanToMap(manageSecurityDTO, Boolean.TRUE, Boolean.FALSE);
+        List<String> codes = sysServiceSettingMapper.findSysServiceCodeBySysServiceCodeIn(map.keySet());
+        List<SysServiceSetting> sysServiceSettings = new ArrayList<>();
+        for (SecurityEnum securityEnum : SecurityEnum.values()) {
+            final String sysServiceCode = securityEnum.getSysServiceCode();
+            final String sysServiceValue = Convert.toStr(map.get(sysServiceCode));
+            if (!codes.contains(sysServiceCode)) {
+                SysServiceSetting sysServiceSetting = new SysServiceSetting();
+                sysServiceSetting.setSysServiceCode(securityEnum.getSysServiceCode());
+                sysServiceSetting.setSysServiceName(securityEnum.getSysServiceName());
+                sysServiceSetting.setSysServiceType(securityEnum.getSysServiceType());
+                sysServiceSetting.setSysServiceValue(!StringUtils.isEmpty(sysServiceValue) ? sysServiceValue : securityEnum.getSysServiceDefaultValue());
+                sysServiceSetting.setSysServiceDefaultValue(securityEnum.getSysServiceDefaultValue());
+                sysServiceSetting.setSysServiceDescription(securityEnum.getSysServiceDescription());
+                sysServiceSettings.add(sysServiceSetting);
+                map.remove(sysServiceCode);
+            }else {
+                map.put(sysServiceCode,!StringUtils.isEmpty(sysServiceValue) ? sysServiceValue : securityEnum.getSysServiceDefaultValue());
+            }
+        }
+
+        if(!CollectionUtils.isEmpty(sysServiceSettings)){
+            sysServiceSettingMapper.insertList(sysServiceSettings);
+        }
+
+        if(MapUtil.isNotEmpty(map)){
+            sysServiceSettingMapper.updateManageSecurityByMap(map);
+        }
+
         updateManageSecurity();
     }
 

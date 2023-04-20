@@ -9,6 +9,7 @@ import com.rotanava.boot.system.api.module.constant.PageDeleteStatus;
 import com.rotanava.boot.system.api.module.constant.PageType;
 import com.rotanava.boot.system.api.module.constant.SysPermissionType;
 import com.rotanava.boot.system.api.module.constant.VisibleToAllType;
+import com.rotanava.boot.system.api.module.system.bean.PermissionListAndId;
 import com.rotanava.boot.system.api.module.system.bo.SysDepartPermission;
 import com.rotanava.boot.system.api.module.system.bo.SysDepartRole;
 import com.rotanava.boot.system.api.module.system.bo.SysDepartRolePermission;
@@ -20,14 +21,13 @@ import com.rotanava.boot.system.module.dao.SysDepartRoleMapper;
 import com.rotanava.boot.system.module.dao.SysDepartRolePermissionMapper;
 import com.rotanava.boot.system.module.dao.SysPagePermissionMapper;
 import com.rotanava.boot.system.module.dao.SysRolePermissionMapper;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
  * @date: 2021-03-10 10:47
  */
 @Service
+@Log4j2
 public class SysPageAndApiServiceImpl implements SysPageAndApiService {
 
     @Autowired
@@ -206,11 +207,17 @@ public class SysPageAndApiServiceImpl implements SysPageAndApiService {
 
         if (sysPermissionType == SysPermissionType.SYSTEM_ROLE) {
 
-            sysRolePermissionMapper.deleteByPageIdInAndSysRoleId(originalSysPageIdList, relationId);
+
+//            List<Integer> pageIdBySysRoleId = sysRolePermissionMapper.findPageIdBySysRoleId(relationId);
+//            sysRolePermissionMapper.deleteByPageIdInAndSysRoleId(originalSysPageIdList, relationId);
+
 
             //如果取消子节点接口全部取消
             //如果勾选  判断子节点是否全部没被选择 如果有一个被勾选则无效
+            long begin = System.currentTimeMillis();
             dealWithChooseAndCancel(sysPermissionType, relationId, sysPageModuleTypeId, sysPageIdList);
+            long end = System.currentTimeMillis();
+            log.info("dealWithChooseAndCancel time={}ms",(end-begin));
 
             for (Integer sysPageId : getSysPageIdListAndParent(sysPageIdList)) {
                 if (sysRolePermissionMapper.countBySysRoleIdAndPageId(relationId, sysPageId) == 0) {
@@ -222,7 +229,9 @@ public class SysPageAndApiServiceImpl implements SysPageAndApiService {
             }
         } else if (sysPermissionType == SysPermissionType.DEPT_ROLE) {
 
+//            List<Integer> pagePermissionIdByDepartRoleId = sysDepartRolePermissionMapper.findPagePermissionIdByDepartRoleId(relationId);
             sysDepartRolePermissionMapper.deleteByPagePermissionIdInAndDepartRoleId(originalSysPageIdList, relationId);
+
 
             //如果取消子节点接口全部取消
             //如果勾选  判断子节点是否全部没被选择 如果有一个被勾选则无效
@@ -297,35 +306,17 @@ public class SysPageAndApiServiceImpl implements SysPageAndApiService {
         final List<Integer> pageIdList = sysRolePermissionMapper.findPageIdBySysRoleId(relationId);
         final List<Integer> deptPageIdList = sysDepartRolePermissionMapper.findPagePermissionIdByDepartRoleId(relationId);
 
-        for (Integer sysPageId : sysPagePermissionMap.keySet()) {
-            final SysPagePermission sysPagePermission = sysPagePermissionMap.get(sysPageId);
-            //如果是子菜单
-            if (!sysPagePermission.getPageType().equals(PageType.INTERFACE_PERMISSIONS.getType())) {
-                //勾选
-                if (sysPageIdList.contains(sysPageId)) {
-                    final Set<Integer> sysPageList = sysPagePermissionGroupMap.get(sysPagePermission.getId());
-                    if (sysPageList != null) {
-                        //判断是否接口有有个打勾 如果有不需要全部打勾
-                        if (sysPermissionType == SysPermissionType.SYSTEM_ROLE) {
-                            if (CollectionUtils.containsAny(pageIdList, sysPageList)) {
-                                continue;
-                            }
-                        } else if (sysPermissionType == SysPermissionType.DEPT_ROLE) {
-                            if (CollectionUtils.containsAny(deptPageIdList, sysPageList)) {
-                                continue;
-                            }
-                        }
 
-                        saveSysPermissionApi(sysPermissionType, relationId, sysPageModuleTypeId, sysPagePermission.getId(), sysPageList);
-                    }
-                } else {
-                    //取消勾选
-                    saveSysPermissionApi(sysPermissionType, relationId, sysPageModuleTypeId, sysPagePermission.getId(), Sets.newHashSet());
-                }
-            }
-        }
+        final List<SysRolePermission> sysRolePermissionList = sysRolePermissionMapper.findBySysRoleId(relationId);
+        final List<SysDepartPermission> sysDepartPermissionList = sysDepartPermissionMapper.findByDepartId(relationId);
+        final List<SysDepartRolePermission> sysDepartRolePermissionList = sysDepartRolePermissionMapper.findByDepartRoleId(relationId);
+        PermissionListAndId permissionListAndId = new PermissionListAndId(sysRolePermissionList, sysDepartPermissionList, sysDepartRolePermissionList);
+
+
+        saveSysPermissionApi(sysPermissionType, relationId, sysPageIdList, sysPagePermissions, sysPagePermissionMap, sysPagePermissionGroupMap, pageIdList, deptPageIdList, permissionListAndId);
 
     }
+
 
     /**
      * 功能: 获取上级和原本需要保存的syspageId
@@ -357,7 +348,7 @@ public class SysPageAndApiServiceImpl implements SysPageAndApiService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void saveSysPermissionApi(SysPermissionType sysPermissionType, int relationId, int sysPageModuleTypeId, int sysParentPageId, Set<Integer> sysPageIdList) {
-
+        long start = System.currentTimeMillis();
         //获取所有的页面数据
         final List<SysPagePermission> sysPagePermissionList = sysPagePermissionMapper.findAllBySysPageModuleTypeId(sysPageModuleTypeId);
         final Map<Integer, SysPagePermission> sysPagePermissionMap = sysPagePermissionList.stream().collect(Collectors.toMap(SysPagePermission::getId, sysPagePermission -> sysPagePermission));
@@ -385,9 +376,11 @@ public class SysPageAndApiServiceImpl implements SysPageAndApiService {
                 return allSysPageIdList.contains(pageId) && sysParentPageId == sysPagePermissionMap.get(pageId).getParentPageId();
             }).map(SysRolePermission::getId).collect(Collectors.toList());
 
+
             if (!sysRolePermissionIds.isEmpty()) {
                 sysRolePermissionMapper.deleteBatchIds(sysRolePermissionIds);
             }
+
 
             //如果接口全为空 父节点删掉
             if (sysPageIdList.isEmpty()) {
@@ -414,6 +407,8 @@ public class SysPageAndApiServiceImpl implements SysPageAndApiService {
                     }
                 }
             }
+            long end = System.currentTimeMillis();
+            System.out.println("单条耗时：" + (end - start) + "ms ");
         } else if (sysPermissionType == SysPermissionType.DEPT_ROLE) {
 
             final List<SysDepartRolePermission> sysDepartRolePermissionList = sysDepartRolePermissionMapper.findByDepartRoleId(relationId);
@@ -490,6 +485,192 @@ public class SysPageAndApiServiceImpl implements SysPageAndApiService {
 
             }
         }
+
+
     }
+
+
+    @Override
+    @Transactional(rollbackFor = Throwable.class)
+    public void saveSysPermissionApi(SysPermissionType sysPermissionType, int relationId, List<SysPagePermission> sysPagePermissionList, int sysParentPageId, Set<Integer> sysPageIdList, PermissionListAndId permissionListAndId) {
+
+
+        long start = System.currentTimeMillis();
+
+        final Map<Integer, SysPagePermission> sysPagePermissionMap = sysPagePermissionList.stream().collect(Collectors.toMap(SysPagePermission::getId, sysPagePermission -> sysPagePermission));
+
+        final List<Integer> allSysPageIdList = sysPagePermissionList.stream()
+                .filter(sysPagePermission -> {
+                    //该接口应该不是全员可见 和 不是接口
+                    final boolean canRemove = !sysPagePermission.getPageType().equals(PageType.INTERFACE_PERMISSIONS.getType()) || sysPagePermission.getVisibleToAll() == VisibleToAllType.VISIBLE.getType();
+                    if (canRemove) {
+                        sysPageIdList.remove(sysPagePermission.getId());
+                    }
+                    return !canRemove;
+                }).map(SysPagePermission::getId).collect(Collectors.toList());
+
+        //判断是否包含page_type 不应该为 除了接口权限
+//        if (!allSysPageIdList.containsAll(sysPageIdList)) {
+//            throw new CommonException(CommonErrorCode.COMMON_ERROR_38);
+//        }
+
+
+        if (sysPermissionType == SysPermissionType.SYSTEM_ROLE) {
+            final List<SysRolePermission> sysRolePermissionList = permissionListAndId.getSysRolePermissionList();
+            final List<Integer> sysRolePermissionIds = sysRolePermissionList.stream().filter(sysPermission -> {
+                final Integer pageId = sysPermission.getPageId();
+                return allSysPageIdList.contains(pageId) && sysParentPageId == sysPagePermissionMap.get(pageId).getParentPageId();
+            }).map(SysRolePermission::getId).collect(Collectors.toList());
+
+
+            if (!sysRolePermissionIds.isEmpty()) {
+                sysRolePermissionMapper.deleteBatchIds(sysRolePermissionIds);
+            }
+
+
+
+            for (Integer sysPageId : sysPageIdList) {
+                final SysRolePermission sysRolePermission = new SysRolePermission();
+                sysRolePermission.setPageId(sysPageId);
+                sysRolePermission.setSysRoleId(relationId);
+                sysRolePermissionMapper.insert(sysRolePermission);
+
+
+                final SysPagePermission sysPagePermission = sysPagePermissionMap.get(sysPageId);
+                if (sysPagePermission != null) {
+                    final Integer parentPageId = sysPagePermission.getParentPageId();
+
+                    //要判断父级是否添加 如果没有要添加
+                    final Integer count = sysRolePermissionMapper.countBySysRoleIdAndPageId(relationId, parentPageId);
+                    if (count == 0 && parentPageId != 0) {
+                        sysRolePermission.setPageId(parentPageId);
+                        sysRolePermission.setSysRoleId(relationId);
+                        sysRolePermissionMapper.insert(sysRolePermission);
+                    }
+                }
+            }
+            long end = System.currentTimeMillis();
+            System.out.println("单条耗时：" + (end - start) + "ms ");
+        } else if (sysPermissionType == SysPermissionType.DEPT_ROLE) {
+
+            final List<SysDepartRolePermission> sysDepartRolePermissionList = permissionListAndId.getSysDepartRolePermissionList();
+            final List<Integer> sysDepartRolePermissionIds = sysDepartRolePermissionList.stream().filter(sysPermission -> {
+                final Integer pageId = sysPermission.getPagePermissionId();
+                return allSysPageIdList.contains(pageId) && sysParentPageId == sysPagePermissionMap.get(pageId).getParentPageId();
+            }).map(SysDepartRolePermission::getId).collect(Collectors.toList());
+
+            if (!sysDepartRolePermissionIds.isEmpty()) {
+                sysDepartRolePermissionMapper.deleteBatchIds(sysDepartRolePermissionIds);
+            }
+
+
+            for (Integer sysPageId : sysPageIdList) {
+                final SysDepartRolePermission sysDepartRolePermission = new SysDepartRolePermission();
+                sysDepartRolePermission.setDepartRoleId(relationId);
+                sysDepartRolePermission.setPagePermissionId(sysPageId);
+                sysDepartRolePermissionMapper.insert(sysDepartRolePermission);
+
+                final SysPagePermission sysPagePermission = sysPagePermissionMap.get(sysPageId);
+                if (sysPagePermission != null) {
+                    final Integer parentPageId = sysPagePermission.getParentPageId();
+
+                    //要判断父级是否添加 如果没有要添加
+                    final Integer count = sysDepartRolePermissionMapper.countByDepartRoleIdAndPagePermissionId(relationId, parentPageId);
+                    if (count == 0 && parentPageId != 0) {
+                        sysDepartRolePermission.setDepartRoleId(relationId);
+                        sysDepartRolePermission.setPagePermissionId(parentPageId);
+                        sysDepartRolePermissionMapper.insert(sysDepartRolePermission);
+                    }
+                }
+
+            }
+        } else if (sysPermissionType == SysPermissionType.DEPT) {
+
+            final List<SysDepartPermission> sysDepartPermissionList = permissionListAndId.getSysDepartPermissionList();
+            final List<Integer> sysDepartPermissionIds = sysDepartPermissionList.stream().filter(sysPermission -> {
+                final Integer pageId = sysPermission.getPagePermissionId();
+                return allSysPageIdList.contains(pageId) && sysParentPageId == sysPagePermissionMap.get(pageId).getParentPageId();
+            }).map(SysDepartPermission::getId).collect(Collectors.toList());
+
+            if (!sysDepartPermissionIds.isEmpty()) {
+                sysDepartPermissionMapper.deleteBatchIds(sysDepartPermissionIds);
+            }
+
+
+            for (Integer sysPageId : sysPageIdList) {
+                final SysDepartPermission sysDepartPermission = new SysDepartPermission();
+                sysDepartPermission.setDepartId(relationId);
+                sysDepartPermission.setPagePermissionId(sysPageId);
+                sysDepartPermissionMapper.insert(sysDepartPermission);
+
+                final SysPagePermission sysPagePermission = sysPagePermissionMap.get(sysPageId);
+                if (sysPagePermission != null) {
+                    final Integer parentPageId = sysPagePermission.getParentPageId();
+
+                    //要判断父级是否添加 如果没有要添加
+                    final Integer count = sysDepartPermissionMapper.countByDepartIdAndPagePermissionId(relationId, parentPageId);
+                    if (count == 0 && parentPageId != 0) {
+                        sysDepartPermission.setDepartId(relationId);
+                        sysDepartPermission.setPagePermissionId(parentPageId);
+                        sysDepartPermissionMapper.insert(sysDepartPermission);
+                    }
+                }
+
+            }
+        }
+    }
+
+
+    public void saveSysPermissionApi(SysPermissionType sysPermissionType, int relationId, Set<Integer> sysPageIdList, List<SysPagePermission> sysPagePermissions, Map<Integer, SysPagePermission> sysPagePermissionMap, Map<Integer, Set<Integer>> sysPagePermissionGroupMap, List<Integer> pageIdList, List<Integer> deptPageIdList, PermissionListAndId permissionListAndId) {
+
+        Set<Integer> sysParentPageIds = new HashSet<>();
+        for (Integer sysPageId : sysPagePermissionMap.keySet()) {
+            final SysPagePermission sysPagePermission = sysPagePermissionMap.get(sysPageId);
+            if (!sysPagePermission.getPageType().equals(PageType.INTERFACE_PERMISSIONS.getType())) {
+                if (!sysPageIdList.contains(sysPageId)) {
+                    sysParentPageIds.add(sysPageId);
+                }
+            }
+        }
+        if(!CollectionUtils.isEmpty(sysParentPageIds)){
+            if (sysPermissionType == SysPermissionType.SYSTEM_ROLE) {
+                sysRolePermissionMapper.deleteBySysRoleIdAndPageIdIn(relationId, sysParentPageIds);
+            } else if (sysPermissionType == SysPermissionType.DEPT_ROLE) {
+                sysDepartRolePermissionMapper.deleteByDepartRoleIdAndPagePermissionIdIn(relationId, sysParentPageIds);
+            }else if (sysPermissionType == SysPermissionType.DEPT) {
+                sysDepartPermissionMapper.deleteByDepartIdAndPagePermissionIdIn(relationId, sysParentPageIds);
+            }
+        }
+
+        for (Integer sysPageId : sysPagePermissionMap.keySet()) {
+            final SysPagePermission sysPagePermission = sysPagePermissionMap.get(sysPageId);
+            //如果是子菜单
+            if (!sysPagePermission.getPageType().equals(PageType.INTERFACE_PERMISSIONS.getType())) {
+                //勾选
+                if (sysPageIdList.contains(sysPageId)) {
+                    final Set<Integer> sysPageList = sysPagePermissionGroupMap.get(sysPagePermission.getId());
+                    if (sysPageList != null) {
+                        //判断是否接口有有个打勾 如果有不需要全部打勾
+                        if (sysPermissionType == SysPermissionType.SYSTEM_ROLE) {
+                            if (CollectionUtils.containsAny(pageIdList, sysPageList)) {
+                                continue;
+                            }
+                        } else if (sysPermissionType == SysPermissionType.DEPT_ROLE) {
+                            if (CollectionUtils.containsAny(deptPageIdList, sysPageList)) {
+                                continue;
+                            }
+                        }
+//                        saveSysPermissionApi(sysPermissionType, relationId, sysPageModuleTypeId, sysPagePermission.getId(), sysPageList);
+                        saveSysPermissionApi(sysPermissionType, relationId, sysPagePermissions, sysPagePermission.getId(), sysPageList, permissionListAndId);
+                    }
+                } else {
+                    //取消勾选
+//                    saveSysPermissionApi(sysPermissionType, relationId, sysPageModuleTypeId, sysPagePermission.getId(), Sets.newHashSet());
+                    saveSysPermissionApi(sysPermissionType, relationId, sysPagePermissions, sysPagePermission.getId(),  Sets.newHashSet(), permissionListAndId);
+                }
+            }
+        }
+    }
+
 
 }

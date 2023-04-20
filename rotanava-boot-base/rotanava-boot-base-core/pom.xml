@@ -14,6 +14,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>net.coobird</groupId>
+            <artifactId>thumbnailator</artifactId>
+            <version>[0.4, 0.5)</version>
+        </dependency>
+        <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
         </dependency>
@@ -105,12 +110,6 @@
             <version>${commons3.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.rotanava.aliyun</groupId>
-            <artifactId>oss</artifactId>
-            <version>1.0.3</version>
-        </dependency>
-
         <!-- 拼音库 -->
         <dependency>
             <groupId>com.belerweb</groupId>
@@ -140,9 +139,6 @@
         <dependency>
             <groupId>com.rotanava.aliyun</groupId>
             <artifactId>oss</artifactId>
-<!--            <version>${oss.version}</version>-->
-<!--            <scope>system</scope>-->
-<!--            <systemPath>${project.basedir}/src/main/resources/lib/oss-1.0.3.jar</systemPath>-->
         </dependency>
 
 
@@ -356,11 +352,11 @@
             <version>0.5.9</version>
         </dependency>
 
-        <dependency>
-            <groupId>io.opentracing.contrib</groupId>
-            <artifactId>opentracing-spring-jaeger-starter</artifactId>
-            <version>2.0.0</version>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>io.opentracing.contrib</groupId>-->
+        <!--            <artifactId>opentracing-spring-jaeger-starter</artifactId>-->
+        <!--            <version>2.0.0</version>-->
+        <!--        </dependency>-->
 
         <dependency>
             <groupId>commons-codec</groupId>
@@ -386,7 +382,16 @@
             <artifactId>commons-compress</artifactId>
             <version>1.21</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>1.10.12</version>
+        </dependency>
 
+        <dependency>
+            <groupId>net.lingala.zip4j</groupId>
+            <artifactId>zip4j</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

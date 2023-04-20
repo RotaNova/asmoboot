@@ -5,6 +5,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.convert.Convert;
 import com.alibaba.fastjson.JSONObject;
 import com.ejlchina.okhttps.HTTP;
+import com.rotanava.boot.platform.core.deploy.DeployUtil;
 import com.rotanava.boot.system.api.SysPlatformDeployService;
 import com.rotanava.boot.system.api.module.system.dto.GatewayInfoDTO;
 import com.rotanava.boot.system.api.module.system.vo.ClusterResultsVO;
@@ -19,6 +20,7 @@ import org.apache.dubbo.config.annotation.DubboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.rotanava.framework.util.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -42,6 +44,11 @@ public class SysPlatformDeployServiceImpl implements SysPlatformDeployService {
     @Autowired
     private GlobalClass globalClass;
 
+    @Autowired
+    DeployUtil deployUtil;
+
+    @Value("${system.monitoring.url}")
+    private String monitoringUrl;
 
     private final static String GATEWAY_CONFIG_GET = "/v1/networkConfig/listGatewayInfo";
     private final static String GATEWAY_CONFIG_UPDATE = "/v1/networkConfig/updateGatewayConfig";
@@ -80,20 +87,23 @@ public class SysPlatformDeployServiceImpl implements SysPlatformDeployService {
     public HTTP getHttpClient(String url) {
         //官方文档 https://okhttps.ejlchina.com
 //        HTTP http = HTTP.builder().baseUrl(globalClass.getMappingValue("deployUrl")).build();
-        HTTP http = HTTP.builder().baseUrl("http://192.168.0.88:18080").build();
+        HTTP http = HTTP.builder().baseUrl(monitoringUrl).build();
 
-        http.async("").addHeader("token", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyQWNjb3VudE5hbWUiOiJhZG1pbiJ9.kgl-PiZqBriNlvYRM2MFrvWmplRIK7NGbuSM1pcn72g");
+        http.sync("").addHeader("token", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyQWNjb3VudE5hbWUiOiJhZG1pbiJ9.kgl-PiZqBriNlvYRM2MFrvWmplRIK7NGbuSM1pcn72g");
         return http;
     }
 
 
     @Override
     public List<GatewayInfoVO> getGatewayInfo() {
+        try {
+            HTTP http = getHttpClient(GATEWAY_CONFIG_GET);
 
-        HTTP http = getHttpClient(GATEWAY_CONFIG_GET);
-
-        return http.async(GATEWAY_CONFIG_GET).get().getResult().getBody().toList(GatewayInfoVO.class);
-
+            return http.sync(GATEWAY_CONFIG_GET).get().getBody().toList(GatewayInfoVO.class);
+        }catch (Exception e){
+            log.error("获取网络配置异常",e);
+        }
+        return null;
     }
 
 
@@ -103,7 +113,7 @@ public class SysPlatformDeployServiceImpl implements SysPlatformDeployService {
         Map<String, Object> map = BeanUtil.beanToMap(gatewayInfoDTO, Boolean.FALSE, Boolean.TRUE);
 
         HTTP http = getHttpClient(GATEWAY_CONFIG_UPDATE);
-        http.async(GATEWAY_CONFIG_UPDATE).addJsonParam(map).put();
+        http.sync(GATEWAY_CONFIG_UPDATE).addJsonParam(map).put();
     }
 
 
@@ -154,30 +164,7 @@ public class SysPlatformDeployServiceImpl implements SysPlatformDeployService {
 
     @Override
     public List<ClusterResultsVO> getCluster(String url) {
-        try {
-            HTTP http = HTTP.builder().baseUrl(globalClass.getMappingValue("clusterUrl")).build();
-            Object cluster = redisUtil.get(CommonConstant.SYSTEM_CLUSTER);
-            String accessToken;
-            if (cluster == null) {
-                ClusterTokenVO clusterTokenVO = http.sync(CommonConstant.SYSTEM_OAUTH_TOKEN)
-                        .addBodyParam("grant_type", CacheConstant.CLUSTER_GRANT_TYPE)
-                        .addBodyParam("username", CacheConstant.CLUSTER_USERNAME)
-                        .addBodyParam("password", CacheConstant.CLUSTER_PASSWORD)
-                        .post().getBody().toBean(ClusterTokenVO.class);
-                accessToken = String.format("%s%s", "Bearer ", clusterTokenVO.getAccess_token());
-                redisUtil.set(CommonConstant.SYSTEM_CLUSTER, accessToken);
-            } else {
-                accessToken = Convert.toStr(cluster);
-            }
-                return http.async(CommonConstant.SYSTEM_API)
-                        .addHeader("Authorization", accessToken)
-                        .get().getResult().getBody().toBean(cn.hutool.json.JSONObject.class).getJSONArray("results").toList(ClusterResultsVO.class);
-
-        }catch (Exception e){
-            log.error(e);
-            redisUtil.del(CommonConstant.SYSTEM_CLUSTER);
-            return new ArrayList<>();
-        }
+       return deployUtil.getCluster(url);
     }
 
 

@@ -16,7 +16,6 @@ import com.rotanava.boot.system.module.dao.VisitorBackupMapper;
 import com.rotanava.boot.system.module.system.impl.DataCockpitServiceImpl;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.handler.annotation.XxlJob;
-import com.xxl.job.core.log.XxlJobLogger;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

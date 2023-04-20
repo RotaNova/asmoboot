@@ -2,6 +2,7 @@ package com.rotanava.boot.system.api;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.rotanava.boot.system.api.module.constant.AnnCategory;
+import com.rotanava.boot.system.api.module.system.bo.SysAnnouncement;
 import com.rotanava.boot.system.api.module.system.dto.AddAnnouncementDTO;
 import com.rotanava.boot.system.api.module.system.dto.GetAnnouncementItemPageDTO;
 import com.rotanava.boot.system.api.module.system.dto.UpdateAnnouncementDTO;
@@ -20,6 +21,12 @@ import java.util.Collection;
 @Validated
 public interface SysAnnouncementService {
 
+    /**
+     * 功能: 根据id获取通告消息
+     * 版本: 1.0
+     * @return
+     */
+    SysAnnouncement getSysAnnouncement(Integer id);
 
     /**
      * 功能: 新增通告

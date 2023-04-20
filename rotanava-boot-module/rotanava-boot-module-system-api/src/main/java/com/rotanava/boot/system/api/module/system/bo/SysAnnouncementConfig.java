@@ -91,5 +91,17 @@ public class SysAnnouncementConfig implements Serializable {
     @ApiModelProperty(value = "系统通告通知部门名单")
     private String annDeptIds;
 
+    /**
+     * 钉钉机器人 0-不通知 1-通知
+     */
+    @ApiModelProperty(value="钉钉通知")
+    private Integer dingTalkNotice;
+
+    /**
+     * 钉钉机器人id名单
+     */
+    @ApiModelProperty(value = "系统通告通知部门名单")
+    private String annDingTalkIds;
+
     private static final long serialVersionUID = 1L;
 }

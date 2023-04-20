@@ -53,28 +53,28 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class SysDepartmentExcelServiceImpl implements SysDepartmentExcelService {
-
+    
     @Autowired
     private SysDepartmentExcelService sysDepartmentExcelService;
-
+    
     @Autowired
     private SysDepartmentMapper sysDepartmentMapper;
-
+    
     @Autowired
     private SysUserDepartmentMapper sysUserDepartmentMapper;
-
+    
     @Autowired
     private FileUploadUtil fileUploadUtil;
-
+    
     @Autowired
     private SysAnnouncementSenderService sysAnnouncementSenderService;
-
+    
     @Autowired
     private SysDepartmentService sysDepartmentService;
-
+    
     @Autowired
     private SysUserMapper sysUserMapper;
-
+    
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public List<SysDepartmentExport> exportSysDepartment() {
@@ -83,8 +83,8 @@ public class SysDepartmentExcelServiceImpl implements SysDepartmentExcelService 
         final Map<Integer, String> sysDepartmentMap = sysDepartmentList.stream().collect(Collectors.toMap(SysDepartment::getId, SysDepartment::getDeptName));
         final Map<Integer, List<Integer>> sysUserDepartmentMap = sysUserDepartmentMapper.selectList(null).stream().collect(Collectors.groupingBy(SysUserDepartment::getSysDepartmentId, Collectors.mapping(SysUserDepartment::getSysUserId, Collectors.toList())));
         final Map<Integer, String> sysUserMap = sysUserMapper.selectList(null).stream().collect(Collectors.toMap(SysUser::getId, SysUser::getUserName));
-
-
+        
+        
         for (SysDepartment sysDepartment : sysDepartmentList) {
             final SysDepartmentExport sysDepartmentExport = new SysDepartmentExport();
             sysDepartmentExport.setDeptAddress(sysDepartment.getDeptAddress());
@@ -102,11 +102,11 @@ public class SysDepartmentExcelServiceImpl implements SysDepartmentExcelService 
             sysDepartmentExport.setPid(sysDepartment.getParentDeptId());
             sysDepartmentExportList.add(sysDepartmentExport);
         }
-
+        
         return SortUtils.sortByParent(sysDepartmentExportList, 0, "id", "pid", "deptOrder");
-
+        
     }
-
+    
     @Override
     public void batchImportSysDepartment(MultipartFile file, int userId) throws Exception {
         final String originalFilename = file.getOriginalFilename();
@@ -120,11 +120,11 @@ public class SysDepartmentExcelServiceImpl implements SysDepartmentExcelService 
             //文件解析错误
             throw new CommonException(ParamErrorCode.PARAM_ERROR_60);
         }
-
+        
         for (SysDepartmentExcel sysDepartmentExcel : sysDepartmentExcelList) {
             sysDepartmentExcelService.parseSysDepartmentExcel(sysDepartmentExcel, errorSysDepartmentExcelList, userId);
         }
-
+        
         if (errorSysDepartmentExcelList.size() > 0) {
             //导入出错
             final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -141,12 +141,12 @@ public class SysDepartmentExcelServiceImpl implements SysDepartmentExcelService 
             sysAnnouncementSenderService.sendAnnouncement(SysAnnConfigIdEnum.SYSANNCONFIGID_1, "导入部门结果通知", msg, msg, Lists.newArrayList(userId), AnnPriorityType.MIDDLE);
         }
     }
-
+    
     @Override
     public String getImportExcelFile() {
         return fileUploadUtil.getObjUrl(BucketNamePool.IMPORT_EXCEL_FILE_BUCKET, "部门导入模板.xlsx", 6);
     }
-
+    
     /**
      * 功能: 解析部门导入
      * 作者: zjt
@@ -156,9 +156,9 @@ public class SysDepartmentExcelServiceImpl implements SysDepartmentExcelService 
     @Override
     @Transactional(rollbackFor = Throwable.class, propagation = Propagation.REQUIRES_NEW)
     public void parseSysDepartmentExcel(SysDepartmentExcel sysDepartmentExcel, List<SysDepartmentExcel> errorSysDepartmentExcelList, int userId) {
-
+        
         final AddDepartmentDTO addDepartmentDTO = new AddDepartmentDTO();
-
+        
         if (StringUtils.isEmpty(sysDepartmentExcel.getDeptName())) {
             sysDepartmentExcel.setFailReason("部门名称为空");
             errorSysDepartmentExcelList.add(sysDepartmentExcel);
@@ -166,7 +166,7 @@ public class SysDepartmentExcelServiceImpl implements SysDepartmentExcelService 
         } else {
             addDepartmentDTO.setDeptName(sysDepartmentExcel.getDeptName());
         }
-
+        
         if (StringUtils.isEmpty(sysDepartmentExcel.getDeptCode())) {
             sysDepartmentExcel.setFailReason("部门编号为空");
             errorSysDepartmentExcelList.add(sysDepartmentExcel);
@@ -174,13 +174,21 @@ public class SysDepartmentExcelServiceImpl implements SysDepartmentExcelService 
         } else {
             addDepartmentDTO.setDeptCode(sysDepartmentExcel.getDeptCode());
         }
-
+        
         addDepartmentDTO.setDeptAddress(sysDepartmentExcel.getDeptAddress());
         addDepartmentDTO.setDeptDescription(sysDepartmentExcel.getDeptDescription());
         addDepartmentDTO.setDeptFax(sysDepartmentExcel.getDeptFax());
         addDepartmentDTO.setDeptManagerPhone(sysDepartmentExcel.getDeptManagerPhone());
-        addDepartmentDTO.setDeptOrder(Convert.toInt(sysDepartmentExcel.getDeptOrder()));
-
+        
+        try {
+            addDepartmentDTO.setDeptOrder(Integer.parseInt(sysDepartmentExcel.getDeptOrder()));
+        } catch (Exception e) {
+            sysDepartmentExcel.setFailReason(String.format("%s 系统部门排序号格式有误,请修改", sysDepartmentExcel.getDeptOrder()));
+            errorSysDepartmentExcelList.add(sysDepartmentExcel);
+            return;
+        }
+        
+        
         final String deptValidTime = sysDepartmentExcel.getDeptValidTime();
         if (StringUtils.isEmpty(deptValidTime)) {
             addDepartmentDTO.setDeptValidTime(4102329600000L);
@@ -193,7 +201,7 @@ public class SysDepartmentExcelServiceImpl implements SysDepartmentExcelService 
                 return;
             }
         }
-
+        
         final String parentDeptName = sysDepartmentExcel.getParentDeptName();
         if (StringUtils.isEmpty(parentDeptName)) {
             addDepartmentDTO.setDeptType(DeptType.FIRST_LEVEL_DEPARTMENT.getType());
@@ -208,7 +216,7 @@ public class SysDepartmentExcelServiceImpl implements SysDepartmentExcelService 
                 addDepartmentDTO.setDeptType(DeptType.SUB_DEPARTMENT.getType());
             }
         }
-
+        
         final String deptManager = sysDepartmentExcel.getDeptManager();
         if (StringUtils.isNotEmpty(deptManager)) {
             final List<Integer> sysUserIdList = Lists.newArrayList();
@@ -224,8 +232,8 @@ public class SysDepartmentExcelServiceImpl implements SysDepartmentExcelService 
             }
             addDepartmentDTO.setSysUserIdList(sysUserIdList);
         }
-
-
+        
+        
         try {
             sysDepartmentService.addDepartment(addDepartmentDTO, userId);
         } catch (Exception e) {
@@ -242,6 +250,6 @@ public class SysDepartmentExcelServiceImpl implements SysDepartmentExcelService 
             errorSysDepartmentExcelList.add(sysDepartmentExcel);
         }
     }
-
-
+    
+    
 }

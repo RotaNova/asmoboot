@@ -14,7 +14,7 @@ public interface OpenAppMapper extends BaseMapper<OpenApp> {
 
     Integer countByAppName(@Param("appName") String appName);
 
-    void updateSetModuleIdNull(@Param("id") Integer id);
+    void updateSetIsSwitch(@Param("id") Integer id);
     /**
      * 发现通过代理id和应用关键和应用的秘密
      *

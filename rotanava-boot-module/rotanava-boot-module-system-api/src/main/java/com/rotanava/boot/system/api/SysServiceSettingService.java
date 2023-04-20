@@ -2,15 +2,19 @@ package com.rotanava.boot.system.api;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.rotanava.boot.system.api.module.system.bo.SysServiceSetting;
+import com.rotanava.boot.system.api.module.system.dto.ManageSecurityDTO;
+import com.rotanava.boot.system.api.module.system.dto.MqttSetDTO;
 import com.rotanava.boot.system.api.module.system.dto.PlatformSettingDTO;
 import com.rotanava.boot.system.api.module.system.dto.system.LogBackupDTO;
 import com.rotanava.boot.system.api.module.system.dto.system.NtpSettingDTO;
 import com.rotanava.boot.system.api.module.system.dto.system.SystemBackupDTO;
+import com.rotanava.boot.system.api.module.system.vo.MqttSetVO;
 import com.rotanava.boot.system.api.module.system.vo.PlatformSettingVO;
 import com.rotanava.boot.system.api.module.system.vo.SysTimingTaskVO;
 import com.rotanava.framework.model.BaseDTO;
 import com.rotanava.framework.model.BaseVO;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -149,4 +153,24 @@ public interface SysServiceSettingService extends IService<SysServiceSetting> {
      * 版本: 1.0
      */
     List<SysServiceSetting> getSysServiceSetting(List<String> serviceCodes);
+
+    /**
+     * 获取mqtt设置信息
+     *
+     * @return @return {@link MqttSetVO }
+     * @author weiqiangmiao
+     * @date 2022/05/12
+     * @update [序号][日期YYYY-MM-DD][更改人姓名][变更描述]
+     */
+    MqttSetVO getMqttSetInfo();
+
+    /**
+     * 更新mqtt组信息
+     *
+     * @param mqttSetDTO mqtt设置dto
+     * @author weiqiangmiao
+     * @date 2022/05/12
+     * @update [序号][日期YYYY-MM-DD][更改人姓名][变更描述]
+     */
+    void updateMqttSetInfo(@Valid MqttSetDTO mqttSetDTO);
 }

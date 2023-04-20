@@ -4,10 +4,10 @@ import java.util.Date;
 import cn.hutool.core.util.IdUtil;
 import com.ejlchina.okhttps.HTTP;
 import com.ejlchina.okhttps.HttpResult;
+import com.rotanava.boot.platform.core.tenant.TenantStart;
 import com.rotanava.boot.system.api.SysServiceSettingService;
 import com.rotanava.boot.system.api.module.system.vo.GatewayInfoVO;
 import com.rotanava.boot.system.api.module.system.vo.PlatformSettingVO;
-import com.rotanava.boot.system.module.system.util.OkhttpsUtil;
 import com.rotanava.framework.code.RetData;
 import com.rotanava.framework.common.oss.FileUploadUtil;
 import com.rotanava.framework.global.GlobalClass;
@@ -32,9 +32,9 @@ public class Runner{
     @Autowired
     private GlobalClass globalClass;
 
-    @Autowired
-    @Lazy
-    private OkhttpsUtil okhttpsUtil;
+//    @Autowired
+//    @Lazy
+//    private OkhttpsUtil okhttpsUtil;
 
     @Autowired
     private SysServiceSettingService sysServiceSettingService;
@@ -45,6 +45,9 @@ public class Runner{
     @Autowired
     FileUploadUtil fileUploadUtil;
 
+//    @Autowired
+//    TenantStart tenantStart;
+
 //    @Value("rotanava.tenant.app.key")
 //    private String tenantAppKey;
 //
@@ -52,42 +55,42 @@ public class Runner{
 //    private String tenantAppSecret;
 
 
-    @PostConstruct
-    @Async
-    public void run() {
-        try {
-            String tenantInfoUuid = globalClass.getMappingValue("tenant_info_uuid");
-
-
-
-            if (tenantInfoUuid == null) {
-
-                HTTP http = okhttpsUtil.builder();
-
-//            RetData retData = http.sync("/v1/manage/getToken")
-//                    .addUrlParam("appKey", tenantAppKey)
-//                    .addUrlParam("appSecret", tenantAppSecret)
-//                    .nothrow().get().getBody().toBean(RetData.class);
-
-                String siteName = sysServiceSettingService.getSiteName();
-                String uuid = IdUtil.fastSimpleUUID();
-                HttpResult post = http.sync("/v1/manage/addTenantInfo")
-                        .addJsonParam("uuid", uuid)
-                        .addJsonParam("name", siteName)
-//                    .addJsonParam("token", retData.getData())
-                        .nothrow().post();
-                if (post.getStatus() == 200) {
-                    SysMappingInfo sysMappingInfo = new SysMappingInfo();
-                    sysMappingInfo.setKey("tenant_info_uuid");
-                    sysMappingInfo.setValue(uuid);
-                    sysMappingInfo.setCreateTime(new Date());
-                    baseCommonMapper.insert(sysMappingInfo);
-                    log.info("上报成功!");
-                }
-            }
-        }catch (Exception e){
-            log.error("租户上报异常",e);
-        }
-
-    }
+//    @PostConstruct
+//    @Async
+//    public void run() {
+//        try {
+//            String tenantInfoUuid = globalClass.getMappingValue("tenant_info_uuid");
+//
+//
+//
+//            if (tenantInfoUuid == null) {
+//
+//                HTTP http = okhttpsUtil.builder();
+//
+////            RetData retData = http.sync("/v1/manage/getToken")
+////                    .addUrlParam("appKey", tenantAppKey)
+////                    .addUrlParam("appSecret", tenantAppSecret)
+////                    .nothrow().get().getBody().toBean(RetData.class);
+//
+//                String siteName = sysServiceSettingService.getSiteName();
+//                String uuid = IdUtil.fastSimpleUUID();
+//                HttpResult post = http.sync("/v1/manage/addTenantInfo")
+//                        .addJsonParam("uuid", uuid)
+//                        .addJsonParam("name", siteName)
+////                    .addJsonParam("token", retData.getData())
+//                        .nothrow().post();
+//                if (post.getStatus() == 200) {
+//                    SysMappingInfo sysMappingInfo = new SysMappingInfo();
+//                    sysMappingInfo.setKey("tenant_info_uuid");
+//                    sysMappingInfo.setValue(uuid);
+//                    sysMappingInfo.setCreateTime(new Date());
+//                    baseCommonMapper.insert(sysMappingInfo);
+//                    log.info("上报成功!");
+//                }
+//            }
+//        }catch (Exception e){
+//            log.error("租户上报异常",e);
+//        }
+//
+//    }
 }

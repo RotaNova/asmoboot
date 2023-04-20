@@ -76,4 +76,10 @@ public class AnnouncementConfigVO implements Serializable {
     @Dict(dicCode = "annTarget")
     private Integer annTarget;
 
+    /**
+     * 钉钉机器人 0-不通知 1-通知
+     */
+    @ApiModelProperty(value="钉钉机器人")
+    private Integer dingTalkNotice;
+
 }

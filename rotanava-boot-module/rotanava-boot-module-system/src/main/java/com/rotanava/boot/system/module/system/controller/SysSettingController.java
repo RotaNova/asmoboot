@@ -80,6 +80,7 @@ public class SysSettingController {
     @AdviceResponseBody
     @PostMapping("/systemFactoryReset")
     public RetData systemFactoryReset() {
+        sysBackUpService.systemFactoryReset();
         return BuildUtil.buildSuccessResult();
     }
 
@@ -173,6 +174,7 @@ public class SysSettingController {
         ntpInfoVO.setNtpSetting(ntpSetting);
         ntpInfoVO.setZoneList(TimeZoneEnum.getZoneList());
         return new RetData(ntpInfoVO);
+//        throw new CommonException(SysErrorCode.SYS_ERROR_18);
     }
 
 

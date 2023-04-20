@@ -4,6 +4,7 @@ package com.rotanava.boot.system.module.service.impl;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.rotanava.boot.system.api.DeviceAuthService;
 import com.rotanava.boot.system.api.ManageSecurityService;
 import com.rotanava.boot.system.api.SysDictItemService;
 import com.rotanava.boot.system.api.SysUserService;
@@ -12,11 +13,7 @@ import com.rotanava.boot.system.api.module.system.bo.SysApiPermission;
 import com.rotanava.boot.system.api.module.system.bo.SysDepartRole;
 import com.rotanava.boot.system.api.module.system.bo.SysRole;
 import com.rotanava.boot.system.api.module.system.bo.SysUser;
-import com.rotanava.boot.system.module.dao.SysApiPermissionMapper;
-import com.rotanava.boot.system.module.dao.SysDepartRoleMapper;
-import com.rotanava.boot.system.module.dao.SysDictMapper;
-import com.rotanava.boot.system.module.dao.SysRoleMapper;
-import com.rotanava.boot.system.module.dao.SysUserMapper;
+import com.rotanava.boot.system.module.dao.*;
 import com.rotanava.framework.code.RetData;
 import com.rotanava.framework.common.api.CommonApi;
 import com.rotanava.framework.common.constant.CacheConstant;
@@ -91,6 +88,8 @@ public class SysBaseApiImpl implements CommonApi {
     @Autowired
     private SysUserService sysUserService;
 
+    @Autowired
+    DeviceAuthService deviceAuthService;
 
     @Override
     public Set<String> queryUserRoles(String userAccountName) {
@@ -158,6 +157,7 @@ public class SysBaseApiImpl implements CommonApi {
         if (sysUser == null) {
             return null;
         }
+
         BeanUtils.copyProperties(sysUser, loginUser);
         loginUser.setIsAdmin(sysRoleMapper.findBySysUserId(loginUser.getId()).stream().map(SysRole::getId).collect(Collectors.toList()).contains(1));
         return loginUser;
@@ -175,6 +175,7 @@ public class SysBaseApiImpl implements CommonApi {
     @Override
     @CacheEvict(cacheNames = CommonConstant.PREFIX_ONLINE_USER_INFO, key = "#userAccountName")
     public void deleteByAccountName(String userAccountName) {
+
     }
 
     @Override
@@ -187,11 +188,17 @@ public class SysBaseApiImpl implements CommonApi {
         String cacheValue = cacheMap.get(cacheKey);
         if (cacheValue == null) {
             log.info("无缓存dictText的时候调用这里！");
-            cacheValue = sysDictMapper.queryDictTextByKey(code, key);
+            try {
+                cacheValue = sysDictMapper.queryDictTextByKey(code, key);
+            }catch (Exception e){
+                e.printStackTrace();
+                log.error(cacheKey);
+            }
             if (cacheValue == null) {
                 cacheValue = "";
                 return cacheValue;
             }
+
             cacheMap.put(cacheKey, cacheValue);
         }
         return cacheValue;
@@ -252,15 +259,18 @@ public class SysBaseApiImpl implements CommonApi {
         return RetData.ok(false).message("查询数据超出范围");
     }
 
+
     @Override
     @Cacheable(cacheNames = CommonConstant.PREFIX_ADMIN_USER, key = "#loginUserName")
     public boolean isAdmin(Integer loginUserId, String loginUserName) {
         return sysRoleMapper.findBySysUserId(loginUserId).stream().map(SysRole::getId).collect(Collectors.toList()).contains(1);
     }
 
+
     @Override
     @CacheEvict(cacheNames = CommonConstant.PREFIX_ADMIN_USER, key = "#loginUserName")
     public void deleteIsAdmin(Integer loginUserId, String loginUserName) {
+
     }
 
     @Override
@@ -276,5 +286,10 @@ public class SysBaseApiImpl implements CommonApi {
     @Override
     public List<SysSearchConfig> getConfigByPageId(String searchCode) {
         return sysSearchConfigMapper.getConfigByPageId(searchCode);
+    }
+
+    @Override
+    public boolean getSystemAuthStatus() {
+       return deviceAuthService.isExpiration();
     }
 }

@@ -4,6 +4,7 @@ import cn.hutool.core.convert.Convert;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.rotanava.boot.system.api.OpenAppService;
+import com.rotanava.boot.system.api.module.constant.PageShow;
 import com.rotanava.boot.system.api.module.system.bo.OpenApp;
 import com.rotanava.boot.system.api.module.system.bo.SysPageModuleType;
 import com.rotanava.boot.system.api.module.system.dto.CreateApplicationDTO;
@@ -117,6 +118,11 @@ public class OpenAppImpl implements OpenAppService {
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public void deleteOpenApp(int openAppId) {
+        final OpenApp openApp = openAppMapper.selectById(openAppId);
+        if (openApp.getModuleId() != null) {
+            sysPageModuleTypeMapper.deleteById(openApp.getModuleId());
+        }
+        sysPagePermissionMapper.deleteBySysPageModuleTypeId(openApp.getModuleId());
         openAppMapper.deleteById(openAppId);
     }
 
@@ -163,7 +169,7 @@ public class OpenAppImpl implements OpenAppService {
             if (StringUtils.isNoneEmpty(logoBucketName, logoObjectName)) {
                 openAppItemVO.setAppImageUrl(fileUploadUtil.getObjUrl(logoBucketName, logoObjectName, 10));
             }
-            openAppItemVO.setIsSwitch(openApp.getModuleId() != null);
+            openAppItemVO.setIsSwitch(openApp.getIsSwitch() != null && openApp.getIsSwitch() == 1);
             return openAppItemVO;
         }).collect(Collectors.toList());
 
@@ -180,18 +186,21 @@ public class OpenAppImpl implements OpenAppService {
             throw new CommonException(DBErrorCode.DB_ERROR_00);
         }
 
-        if (enableAppDTO.getIsSwitch() && openApp.getModuleId() == null) {
+        if (enableAppDTO.getIsSwitch()) {
             final SysPageModuleType sysPageModuleType = new SysPageModuleType();
-            sysPageModuleType.setName(openApp.getAppName());
-            sysPageModuleTypeMapper.insert(sysPageModuleType);
-            openApp.setModuleId(sysPageModuleType.getId());
+            if(openApp.getModuleId() == null){
+                sysPageModuleType.setName(openApp.getAppName());
+                sysPageModuleTypeMapper.insert(sysPageModuleType);
+                openApp.setModuleId(sysPageModuleType.getId());
+            }
+            openApp.setIsSwitch(1);
             openAppMapper.updateById(openApp);
         } else {
-            openAppMapper.updateSetModuleIdNull(openAppId);
-            if (openApp.getModuleId() != null) {
-                sysPageModuleTypeMapper.deleteById(openApp.getModuleId());
-            }
-            sysPagePermissionMapper.deleteBySysPageModuleTypeId(openApp.getModuleId());
+            openAppMapper.updateSetIsSwitch(openAppId);
+//            if (openApp.getModuleId() != null) {
+//                sysPageModuleTypeMapper.deleteById(openApp.getModuleId());
+//            }
+//            sysPagePermissionMapper.deleteBySysPageModuleTypeId(openApp.getModuleId());
         }
     }
 

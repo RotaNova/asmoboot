@@ -109,5 +109,13 @@ public class OpenApp implements Serializable {
     @ApiModelProperty(value = "模块id")
     private Integer moduleId;
 
+
+    /**
+     * 是否启用 0-关闭 1-启用
+     */
+    @TableField(value = "is_switch")
+    @ApiModelProperty(value = "是否启用")
+    private Integer isSwitch;
+
     private static final long serialVersionUID = 1L;
 }

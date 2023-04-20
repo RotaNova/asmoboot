@@ -59,4 +59,8 @@ public class SysApiBean implements Serializable {
      */
     private Integer apiAbilityType;
 
+    /**
+     * 系统页面模块类型id
+     */
+    private Integer sysPageModuleTypeId;
 }

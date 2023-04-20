@@ -416,7 +416,7 @@ public class MyDepartmentController {
      * 版本: 1.0
      */
     @PostMapping("saveDeptRolePermission")
-    @AutoLog(value = "保存部门角色系统权限配置", operateType = OperateTypeEnum.SELECT)
+    @AutoLog(value = "保存部门角色系统权限配置", operateType = OperateTypeEnum.UPDATE)
     @AdviceResponseBody
     public RetData saveDeptRolePermission(@RequestBody SaveDeptRolePermissionDTO saveDeptPermissionDTO) {
         sysPageAndApiService.saveSysPermission(SysPermissionType.SYSTEM_ROLE, saveDeptPermissionDTO.getDeptRoleId(), saveDeptPermissionDTO.getSysPageModuleTypeId(), saveDeptPermissionDTO.getSysPageIdList());

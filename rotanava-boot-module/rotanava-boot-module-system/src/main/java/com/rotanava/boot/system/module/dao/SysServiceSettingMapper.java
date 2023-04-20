@@ -1,4 +1,5 @@
 package com.rotanava.boot.system.module.dao;
+import java.util.Collection;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.rotanava.boot.system.api.module.system.bo.SysServiceSetting;
@@ -72,5 +73,14 @@ public interface SysServiceSettingMapper extends BaseMapper<SysServiceSetting> {
     
     
     void deleteByServiceCode(@Param("sysServiceCode") String sysServiceCode);
+
+    int updateMqttSetByMap(@Param("map") Map<String, Object> map);
+
+    List<String> findSysServiceCodeBySysServiceCodeIn(@Param("sysServiceCodeCollection")Collection<String> sysServiceCodeCollection);
+
+    int insertList(@Param("list")List<SysServiceSetting> list);
+
+
+
 
 }

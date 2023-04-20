@@ -84,7 +84,13 @@ public class SysAnnouncementServiceImpl implements SysAnnouncementService {
     
     @Autowired
     private ApplicationContext applicationContext;
-    
+
+
+    @Override
+    public SysAnnouncement getSysAnnouncement(Integer id){
+        return sysAnnouncementMapper.selectById(id);
+    }
+
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public Integer addAnnouncement(AddAnnouncementDTO announcementDTO, int userId, AnnCategory annCategory) {
@@ -339,7 +345,8 @@ public class SysAnnouncementServiceImpl implements SysAnnouncementService {
                         @Override
                         public void afterCommit() {
                             ThreadPoolUtil.execute(() -> {
-                                sysAnnouncementSenderService.sendAnnouncementByHasSysAnnoId(SysAnnConfigIdEnum.SYSANNCONFIGID_1, sysAnnoId,
+                                //SysAnnConfigIdEnum.SYSANNCONFIGID_1
+                                sysAnnouncementSenderService.sendAnnouncementByHasSysAnnoId(sysAnnouncement.getAnnConfigId(), sysAnnoId,
                                         JSONUtil.toList(JSONUtil.parseArray(sysAnnouncement.getAnnUserIds()), Integer.class), AnnPriorityType.getAnnPriorityType(sysAnnouncement.getAnnPriority()));
                             
                             });

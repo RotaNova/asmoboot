@@ -54,4 +54,12 @@ public interface SysRoleMapper extends BaseMapper<SysRole> {
     List<Integer> findIdBySysDepartmentIdIn(@Param("sysDepartmentIdCollection") Collection<Integer> sysDepartmentIdCollection);
 
     IPage<SysUser> queryUserByRole(@Param(Constants.WRAPPER) QueryWrapper<SysUser> queryWrapper, IPage<SysUser> iPage);
+
+    SysRole findByRoleCode(@Param("roleCode")String roleCode);
+
+
+    int insertAdmin(@Param("sysRole")SysRole sysRole);
+
+
+
 }

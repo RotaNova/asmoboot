@@ -28,6 +28,13 @@ public class MqTransactionalMessageSender {
      * 作者: zjt
      * 日期: 2021/3/22 14:56
      * 版本: 1.0
+     *
+     * @param routingKey 路由的关键
+     * @param msgBody    味精的身体
+     * @return
+     * @author weiqiangmiao
+     * @date 2022/03/25
+     * @update [序号][日期YYYY-MM-DD][更改人姓名][变更描述]
      */
     public void insertMqTransactionalMessage(String routingKey, String msgBody) {
         insertMqTransactionalMessage("", routingKey, msgBody, null);

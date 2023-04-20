@@ -71,4 +71,11 @@ public class SaveAnnouncementConfigDTO implements Serializable {
     @Range(min = 0, max = 1)
     private Integer allowCloseNotice;
 
+    /**
+     * 钉钉机器人 0-不通知 1-通知
+     */
+    @ApiModelProperty(value = "钉钉机器人 0-不通知 1-通知")
+    @NotNull
+    @Range(min = 0, max = 1)
+    private Integer dingTalkNotice;
 }
